@@ -61,12 +61,12 @@ export function SidebarNav() {
         <SidebarMenu>
           {mainNav.map((item) => (
             <SidebarMenuItem key={item.href}>
-              <Link href={item.href} passHref legacyBehavior>
+              <Link href={item.href} passHref>
                 <SidebarMenuButton asChild isActive={isActive(item.href)} tooltip={item.label}>
-                  <a>
+                  <span>
                     <item.icon />
                     <span>{item.label}</span>
-                  </a>
+                  </span>
                 </SidebarMenuButton>
               </Link>
             </SidebarMenuItem>
@@ -77,12 +77,12 @@ export function SidebarNav() {
             <div className="px-2 text-xs font-medium text-muted-foreground">AI Tools</div>
             {aiToolsNav.map((item) => (
                 <SidebarMenuItem key={item.href}>
-                <Link href={item.href} passHref legacyBehavior>
+                <Link href={item.href} passHref>
                     <SidebarMenuButton asChild isActive={isActive(item.href)} tooltip={item.label}>
-                    <a>
+                    <span>
                         <item.icon />
                         <span>{item.label}</span>
-                    </a>
+                    </span>
                     </SidebarMenuButton>
                 </Link>
                 </SidebarMenuItem>
@@ -92,12 +92,12 @@ export function SidebarNav() {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <Link href="/profile" passHref legacyBehavior>
+            <Link href="/profile" passHref>
               <SidebarMenuButton asChild isActive={isActive('/profile')} tooltip="Profile">
-                <a>
+                <span>
                   <User />
                   <span>Profile</span>
-                </a>
+                </span>
               </SidebarMenuButton>
             </Link>
           </SidebarMenuItem>
