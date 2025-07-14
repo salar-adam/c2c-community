@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import Image from "next/image";
-import { useFlow } from "@genkit-ai/next/client";
+import { useAction } from "@genkit-ai/next/client";
 import { identifyImage, IdentifyImageOutput } from "@/ai/flows/identify-image";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,26 +24,27 @@ export function ImageIdentifier() {
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [identify, inProgress] = useFlow(identifyImage, {
-    onSuccess: (res) => {
-      setResult(res);
-      setError(null);
-    },
-    onError: (err) => {
-      setError(`Identification failed: ${err.message}`);
-      setResult(null);
-    },
-  });
+  const { run: identify, running: inProgress } = useAction(identifyImage);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
+      reader.onloadend = async () => {
+        const photoDataUri = reader.result as string;
+        setImagePreview(photoDataUri);
         setResult(null);
         setError(null);
-        identify({ photoDataUri: reader.result as string });
+        try {
+          const res = await identify({ photoDataUri });
+          if (res) {
+            setResult(res);
+          }
+          setError(null);
+        } catch (err: any) {
+          setError(`Identification failed: ${err.message}`);
+          setResult(null);
+        }
       };
       reader.readAsDataURL(file);
     }

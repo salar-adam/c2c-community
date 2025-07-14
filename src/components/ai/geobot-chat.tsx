@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { useFlow } from "@genkit-ai/next/client";
+import { useAction } from "@genkit-ai/next/client";
 import { askGeoBot } from "@/ai/flows/ask-geobot";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,17 +19,7 @@ interface Message {
 export function GeobotChat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
-  const [ask, inProgress] = useFlow(askGeoBot, {
-    onSuccess: (result) => {
-      setMessages((prev) => [...prev, { role: "bot", text: result.answer }]);
-    },
-    onError: (err) => {
-      setMessages((prev) => [
-        ...prev,
-        { role: "bot", text: `Sorry, an error occurred: ${err.message}` },
-      ]);
-    },
-  });
+  const { run: ask, running: inProgress } = useAction(askGeoBot);
 
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
@@ -44,13 +34,24 @@ export function GeobotChat() {
     }
   }, [messages]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (input.trim() && !inProgress) {
       const newMessages: Message[] = [...messages, { role: "user", text: input }];
       setMessages(newMessages);
-      ask({ question: input });
+      const question = input;
       setInput("");
+      try {
+        const result = await ask({ question });
+        if (result) {
+          setMessages((prev) => [...prev, { role: "bot", text: result.answer }]);
+        }
+      } catch (err: any) {
+        setMessages((prev) => [
+          ...prev,
+          { role: "bot", text: `Sorry, an error occurred: ${err.message}` },
+        ]);
+      }
     }
   };
 

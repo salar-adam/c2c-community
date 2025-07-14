@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useFlow } from "@genkit-ai/next/client";
+import { useAction } from "@genkit-ai/next/client";
 import { summarizeData } from "@/ai/flows/summarize-data";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,19 +11,19 @@ import { Loader2, Wand2 } from "lucide-react";
 export function DataSummarizer() {
   const [data, setData] = useState("");
   const [summary, setSummary] = useState("");
-  const [summarize, inProgress] = useFlow(summarizeData, {
-    onSuccess: (result) => {
-      setSummary(result.summary);
-    },
-    onError: (err) => {
-      setSummary(`Error: ${err.message}`);
-    },
-  });
+  const { run: summarize, running: inProgress } = useAction(summarizeData);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (data.trim()) {
       setSummary("");
-      summarize({ data });
+      try {
+        const result = await summarize({ data });
+        if (result) {
+          setSummary(result.summary);
+        }
+      } catch (err: any) {
+        setSummary(`Error: ${err.message}`);
+      }
     }
   };
 
