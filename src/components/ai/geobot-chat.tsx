@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { useAction } from "@genkit-ai/next/client";
 import { askGeoBot } from "@/ai/flows/ask-geobot";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,8 +18,8 @@ interface Message {
 export function GeobotChat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
-  const { run: ask, running: inProgress } = useAction(askGeoBot);
-
+  const [inProgress, setInProgress] = useState(false);
+  
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -41,8 +40,9 @@ export function GeobotChat() {
       setMessages(newMessages);
       const question = input;
       setInput("");
+      setInProgress(true);
       try {
-        const result = await ask({ question });
+        const result = await askGeoBot({ question });
         if (result) {
           setMessages((prev) => [...prev, { role: "bot", text: result.answer }]);
         }
@@ -51,6 +51,8 @@ export function GeobotChat() {
           ...prev,
           { role: "bot", text: `Sorry, an error occurred: ${err.message}` },
         ]);
+      } finally {
+        setInProgress(false);
       }
     }
   };

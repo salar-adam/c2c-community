@@ -2,7 +2,6 @@
 
 import { useState, useRef } from "react";
 import Image from "next/image";
-import { useAction } from "@genkit-ai/next/client";
 import { identifyImage, IdentifyImageOutput } from "@/ai/flows/identify-image";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,9 +21,8 @@ export function ImageIdentifier() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [result, setResult] = useState<IdentifyImageOutput | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [inProgress, setInProgress] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const { run: identify, running: inProgress } = useAction(identifyImage);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -35,8 +33,9 @@ export function ImageIdentifier() {
         setImagePreview(photoDataUri);
         setResult(null);
         setError(null);
+        setInProgress(true);
         try {
-          const res = await identify({ photoDataUri });
+          const res = await identifyImage({ photoDataUri });
           if (res) {
             setResult(res);
           }
@@ -44,6 +43,8 @@ export function ImageIdentifier() {
         } catch (err: any) {
           setError(`Identification failed: ${err.message}`);
           setResult(null);
+        } finally {
+          setInProgress(false);
         }
       };
       reader.readAsDataURL(file);

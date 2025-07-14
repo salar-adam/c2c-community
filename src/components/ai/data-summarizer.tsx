@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useAction } from "@genkit-ai/next/client";
 import { summarizeData } from "@/ai/flows/summarize-data";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,18 +10,24 @@ import { Loader2, Wand2 } from "lucide-react";
 export function DataSummarizer() {
   const [data, setData] = useState("");
   const [summary, setSummary] = useState("");
-  const { run: summarize, running: inProgress } = useAction(summarizeData);
+  const [inProgress, setInProgress] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async () => {
     if (data.trim()) {
       setSummary("");
+      setError(null);
+      setInProgress(true);
       try {
-        const result = await summarize({ data });
+        const result = await summarizeData({ data });
         if (result) {
           setSummary(result.summary);
         }
       } catch (err: any) {
         setSummary(`Error: ${err.message}`);
+        setError(`Error: ${err.message}`);
+      } finally {
+        setInProgress(false);
       }
     }
   };
@@ -62,12 +67,13 @@ export function DataSummarizer() {
                 <p>Analyzing data...</p>
              </div>
           )}
-          {summary && (
+          {error && <div className="text-destructive">{error}</div>}
+          {summary && !error &&(
             <div className="prose prose-sm dark:prose-invert max-w-none">
               <p>{summary}</p>
             </div>
           )}
-          {!summary && !inProgress && (
+          {!summary && !inProgress && !error && (
             <div className="text-muted-foreground">
                 Your summary will appear here.
             </div>
