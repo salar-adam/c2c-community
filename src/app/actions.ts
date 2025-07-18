@@ -3,7 +3,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { db } from '@/lib/firebase'
-import { collection, addDoc, writeBatch, getDocs, Timestamp, query, limit } from 'firebase/firestore'
+import { collection, addDoc, writeBatch, getDocs, Timestamp, query, limit, doc } from 'firebase/firestore'
 
 export async function submitJoinRequest(formData: FormData) {
   const rawFormData = {
@@ -98,7 +98,7 @@ export async function seedCommunityPosts() {
     ];
 
     samplePosts.forEach(post => {
-      const docRef = collection(db, 'community-posts').doc();
+      const docRef = doc(collection(db, 'community-posts'));
       batch.set(docRef, post);
     });
 
@@ -164,7 +164,7 @@ export async function seedResources() {
     ];
 
     sampleResources.forEach(resource => {
-      const docRef = collection(db, 'resources').doc();
+      const docRef = doc(collection(db, 'resources'));
       batch.set(docRef, resource);
     });
 
@@ -175,5 +175,65 @@ export async function seedResources() {
   } catch (error) {
     console.error("Error seeding resources: ", error);
     return { success: false, message: 'An error occurred while seeding resources.' };
+  }
+}
+
+export async function seedExpertQuestions() {
+  const questionsCollection = collection(db, 'expert-questions');
+
+  try {
+    const q = query(questionsCollection, limit(1));
+    const snapshot = await getDocs(q);
+    if (!snapshot.empty) {
+      return { success: false, message: "Sample questions have already been added." };
+    }
+
+    const batch = writeBatch(db);
+
+    const sampleQuestions = [
+      {
+        title: "What are the key indicators of a potential landslide zone?",
+        author: "Siti Nurhaliza",
+        status: "Answered",
+        expert: {
+          name: "Dr. Evelyn Reed",
+          title: "Geotechnical Engineer",
+          avatar: "https://placehold.co/100x100.png?text=ER",
+        },
+        answerPreview: "Key indicators include tension cracks, bulging ground at the base of a slope, and unusual spring or seep activity. Monitoring ground movement with inclinometers is crucial...",
+        timestamp: Timestamp.fromDate(new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)), // 2 days ago
+      },
+      {
+        title: "How can I differentiate between quartzite and marble in the field?",
+        author: "Kenji Tanaka",
+        status: "Answered",
+        expert: {
+          name: "Dr. Ben Carter",
+          title: "Mineralogist",
+          avatar: "https://placehold.co/100x100.png?text=BC",
+        },
+        answerPreview: "The simplest field test is the acid test. Marble (calcite) will fizz when a drop of dilute hydrochloric acid is applied, while quartzite will not react. Hardness is another clue; quartzite is harder than a steel knife blade, while marble is softer.",
+        timestamp: Timestamp.fromDate(new Date(Date.now() - 5 * 24 * 60 * 60 * 1000)), // 5 days ago
+      },
+      {
+        title: "What is the significance of the K-T boundary?",
+        author: "Fatima Al-Sayed",
+        status: "Awaiting Answer",
+        timestamp: Timestamp.now(),
+      },
+    ];
+
+    sampleQuestions.forEach(question => {
+      const docRef = doc(collection(db, 'expert-questions'));
+      batch.set(docRef, question);
+    });
+
+    await batch.commit();
+    revalidatePath('/ask-a-geoscientist');
+    return { success: true, message: 'Sample questions added successfully.' };
+
+  } catch (error) {
+    console.error("Error seeding questions: ", error);
+    return { success: false, message: 'An error occurred while seeding questions.' };
   }
 }
