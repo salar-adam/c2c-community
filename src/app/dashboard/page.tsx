@@ -65,7 +65,7 @@ export default function DashboardPage() {
       <div className="grid gap-6 grid-cols-1 lg:grid-cols-3 auto-rows-fr">
         {/* Main Content Area */}
         <div className="lg:col-span-2 space-y-6">
-            <Card className="bg-card from-blue-400/20 to-cyan-400/10 dark:from-blue-400/20 dark:to-cyan-400/10">
+            <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2"><Users className="h-5 w-5"/> Community</CardTitle>
                 </CardHeader>
@@ -103,7 +103,7 @@ export default function DashboardPage() {
             </Card>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Card className="bg-card from-green-400/20 to-teal-300/10 dark:from-green-400/20 dark:to-teal-300/10">
+                <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2"><BookCopy className="h-5 w-5"/> Featured Resource</CardTitle>
                     </CardHeader>
@@ -117,7 +117,7 @@ export default function DashboardPage() {
                         </Button>
                     </CardFooter>
                 </Card>
-                 <Card className="bg-card from-orange-400/20 to-pink-200/10 dark:from-orange-400/20 dark:to-pink-200/10">
+                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2"><Calendar className="h-5 w-5"/> Upcoming Events</CardTitle>
                     </CardHeader>
@@ -140,7 +140,7 @@ export default function DashboardPage() {
 
         {/* Top Contributors Widget */}
         <div className="lg:col-span-1">
-             <Card className="h-full bg-card from-purple-400/20 to-pink-300/10 dark:from-purple-400/20 dark:to-pink-300/10">
+             <Card className="h-full">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2"><Trophy className="h-5 w-5"/> Top Contributors</CardTitle>
                 </CardHeader>
