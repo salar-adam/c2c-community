@@ -1,3 +1,5 @@
+"use client"
+
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -10,8 +12,18 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { GeoNexusLogo } from "@/components/icons"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 
 export default function LoginPage() {
+  const router = useRouter()
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    // In a real app, you'd have authentication logic here.
+    // For now, we'll just navigate to the dashboard.
+    router.push("/")
+  }
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">
       <Card className="mx-auto max-w-sm w-full">
@@ -25,7 +37,7 @@ export default function LoginPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4">
+          <form onSubmit={handleSubmit} className="grid gap-4">
             <div className="grid gap-2">
               <Label htmlFor="name">Name</Label>
               <Input
@@ -42,16 +54,16 @@ export default function LoginPage() {
             <Button type="submit" className="w-full">
               Login
             </Button>
-            <div className="mt-4 text-center text-sm">
-              <Link href="/join-request" className="text-sm hover:underline">
-                Want to join our private community?
-              </Link>
-            </div>
-            <div className="text-center text-sm">
-              <Link href="/elite-invite" className="text-sm hover:underline">
-                Invited by an elite member?
-              </Link>
-            </div>
+          </form>
+          <div className="mt-4 text-center text-sm">
+            <Link href="/join-request" className="hover:underline">
+              Want to join our private community?
+            </Link>
+          </div>
+          <div className="mt-2 text-center text-sm">
+            <Link href="/elite-invite" className="hover:underline">
+              Invited by an elite member?
+            </Link>
           </div>
         </CardContent>
       </Card>
