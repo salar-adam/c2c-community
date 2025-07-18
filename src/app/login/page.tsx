@@ -43,12 +43,12 @@ export default function LoginPage() {
               Login
             </Button>
             <div className="mt-4 text-center text-sm">
-              <Link href="#" className="underline">
+              <Link href="/join-request" className="text-sm hover:underline">
                 Want to join our private community?
               </Link>
             </div>
             <div className="text-center text-sm">
-              <Link href="#" className="underline">
+              <Link href="/elite-invite" className="text-sm hover:underline">
                 Invited by an elite member?
               </Link>
             </div>
