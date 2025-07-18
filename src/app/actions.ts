@@ -3,7 +3,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { db } from '@/lib/firebase'
-import { collection, addDoc } from 'firebase/firestore'
+import { collection, addDoc, writeBatch, getDocs, Timestamp } from 'firebase/firestore'
 
 export async function submitJoinRequest(formData: FormData) {
   const rawFormData = {
@@ -46,5 +46,68 @@ export async function submitEliteInvite(formData: FormData) {
   } catch (error) {
     console.error('Error adding document: ', error)
     return { success: false, message: 'An error occurred while submitting the form.' }
+  }
+}
+
+
+export async function seedCommunityPosts() {
+  const postsCollection = collection(db, 'community-posts');
+
+  try {
+    // Optional: Check if posts already exist to prevent duplicate seeding
+    const existingPosts = await getDocs(postsCollection);
+    if (!existingPosts.empty) {
+      return { success: false, message: "Sample posts have already been added." };
+    }
+
+    const batch = writeBatch(db);
+
+    const samplePosts = [
+      {
+        author: { name: "Alex Johnson", avatar: "https://placehold.co/100x100.png?text=AJ" },
+        title: "Interesting sedimentary structures found in the Grand Canyon",
+        category: "Field Geology",
+        upvotes: 128,
+        comments: 23,
+        timestamp: Timestamp.now(),
+      },
+      {
+        author: { name: "Maria Garcia", avatar: "https://placehold.co/100x100.png?text=MG" },
+        title: "Best software for 3D geological modeling?",
+        category: "Geophysics",
+        upvotes: 95,
+        comments: 42,
+        timestamp: Timestamp.fromDate(new Date(Date.now() - 5 * 60 * 60 * 1000)), // 5 hours ago
+      },
+      {
+        author: { name: "Salar", avatar: "https://placehold.co/100x100.png" },
+        title: "Tips for recent geology graduates on landing the first job",
+        category: "Career & Education",
+        upvotes: 210,
+        comments: 78,
+        timestamp: Timestamp.fromDate(new Date(Date.now() - 24 * 60 * 60 * 1000)), // 1 day ago
+      },
+      {
+        author: { name: "Chen Wang", avatar: "https://placehold.co/100x100.png?text=CW" },
+        title: "Debate: Is Pluto a planet? (Geologist's take)",
+        category: "General Discussion",
+        upvotes: 45,
+        comments: 112,
+        timestamp: Timestamp.fromDate(new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)), // 2 days ago
+      },
+    ];
+
+    samplePosts.forEach(post => {
+      const docRef = addDoc(postsCollection, {})._key.path.segments.slice(-1)[0];
+      batch.set(collection(db, 'community-posts').doc(docRef), post);
+    });
+
+    await batch.commit();
+    revalidatePath('/community');
+    return { success: true, message: 'Sample posts added successfully.' };
+
+  } catch (error) {
+    console.error("Error seeding posts: ", error);
+    return { success: false, message: 'An error occurred while seeding posts.' };
   }
 }

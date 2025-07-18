@@ -1,10 +1,16 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Book, MessageSquare, PlusCircle, ThumbsUp } from "lucide-react"
+import { MessageSquare, PlusCircle, ThumbsUp, Loader2, Database } from "lucide-react"
+import { db } from "@/lib/firebase"
+import { collection, getDocs, Timestamp } from "firebase/firestore"
+import { formatDistanceToNow } from "date-fns"
+import { seedCommunityPosts } from "@/app/actions"
+import { useToast } from "@/hooks/use-toast"
 
 const channels = [
     { name: "General Discussion", color: "bg-blue-500" },
@@ -14,58 +20,76 @@ const channels = [
     { name: "Career & Education", color: "bg-indigo-500" },
 ]
 
-const posts = [
-  {
-    id: 1,
+interface Post {
+    id: string;
     author: {
-      name: "Alex Johnson",
-      avatar: "https://placehold.co/100x100.png?text=AJ",
-    },
-    title: "Interesting sedimentary structures found in the Grand Canyon",
-    category: "Field Geology",
-    upvotes: 128,
-    comments: 23,
-    timestamp: "2 hours ago",
-  },
-  {
-    id: 2,
-    author: {
-      name: "Maria Garcia",
-      avatar: "https://placehold.co/100x100.png?text=MG",
-    },
-    title: "Best software for 3D geological modeling?",
-    category: "Geophysics",
-    upvotes: 95,
-    comments: 42,
-    timestamp: "5 hours ago",
-  },
-  {
-    id: 3,
-    author: {
-      name: "Salar",
-      avatar: "https://placehold.co/100x100.png",
-    },
-    title: "Tips for recent geology graduates on landing the first job",
-    category: "Career & Education",
-    upvotes: 210,
-    comments: 78,
-    timestamp: "1 day ago",
-  },
-   {
-    id: 4,
-    author: {
-      name: "Chen Wang",
-      avatar: "https://placehold.co/100x100.png?text=CW",
-    },
-    title: "Debate: Is Pluto a planet? (Geologist's take)",
-    category: "General Discussion",
-    upvotes: 45,
-    comments: 112,
-    timestamp: "2 days ago",
-  },
-]
+        name: string;
+        avatar: string;
+    };
+    title: string;
+    category: string;
+    upvotes: number;
+    comments: number;
+    timestamp: Date;
+}
 
 export default function CommunityPage() {
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast()
+
+  const fetchPosts = async () => {
+    setLoading(true);
+    try {
+        const querySnapshot = await getDocs(collection(db, "community-posts"));
+        const postsData = querySnapshot.docs.map(doc => {
+            const data = doc.data();
+            return {
+                id: doc.id,
+                author: data.author,
+                title: data.title,
+                category: data.category,
+                upvotes: data.upvotes,
+                comments: data.comments,
+                timestamp: (data.timestamp as Timestamp).toDate(),
+            };
+        });
+        // Sort by most recent
+        postsData.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+        setPosts(postsData);
+    } catch (error) {
+        console.error("Error fetching posts: ", error);
+        toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Failed to fetch community posts.",
+        })
+    } finally {
+        setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPosts();
+  }, []);
+
+  const handleSeed = async () => {
+    const result = await seedCommunityPosts();
+    if (result.success) {
+      toast({
+        title: "Success",
+        description: "Sample posts have been added to the database.",
+      });
+      fetchPosts(); // Refresh the posts list
+    } else {
+       toast({
+        variant: "destructive",
+        title: "Error",
+        description: result.message,
+      })
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -75,10 +99,16 @@ export default function CommunityPage() {
             Engage with fellow geoscientists, share findings, and ask questions.
             </p>
         </div>
-        <Button disabled>
-            <PlusCircle className="mr-2 h-4 w-4" />
-            Create Post
-        </Button>
+        <div className="flex gap-2">
+            <Button onClick={handleSeed}>
+                <Database className="mr-2 h-4 w-4" />
+                Seed Posts
+            </Button>
+            <Button disabled>
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Create Post
+            </Button>
+        </div>
       </div>
       
       <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-6 items-start">
@@ -88,31 +118,42 @@ export default function CommunityPage() {
                     <CardTitle>Recent Posts</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    {posts.map(post => (
-                        <div key={post.id} className="flex items-start gap-4 p-4 border rounded-lg hover:bg-secondary/50 transition-colors">
-                           <Avatar>
-                                <AvatarImage src={post.author.avatar} alt={post.author.name} data-ai-hint="person face"/>
-                                <AvatarFallback>{post.author.name.substring(0,2)}</AvatarFallback>
-                           </Avatar>
-                           <div className="flex-1">
-                                <h3 className="font-semibold text-lg leading-tight">{post.title}</h3>
-                                <div className="text-sm text-muted-foreground mt-1">
-                                    Posted by {post.author.name} &bull; {post.timestamp}
-                                </div>
-                                <div className="flex items-center gap-4 mt-2 text-sm">
-                                    <Badge variant="secondary">{post.category}</Badge>
-                                    <div className="flex items-center gap-1 text-muted-foreground">
-                                        <ThumbsUp className="h-4 w-4" />
-                                        <span>{post.upvotes}</span>
-                                    </div>
-                                    <div className="flex items-center gap-1 text-muted-foreground">
-                                        <MessageSquare className="h-4 w-4" />
-                                        <span>{post.comments}</span>
-                                    </div>
-                                </div>
-                           </div>
+                    {loading ? (
+                        <div className="flex justify-center items-center h-48">
+                            <Loader2 className="h-8 w-8 animate-spin text-primary" />
                         </div>
-                    ))}
+                    ) : posts.length === 0 ? (
+                        <div className="text-center text-muted-foreground py-12">
+                            <p>No posts yet.</p>
+                            <p className="text-sm">Click "Seed Posts" to add some sample data.</p>
+                        </div>
+                    ) : (
+                        posts.map(post => (
+                            <div key={post.id} className="flex items-start gap-4 p-4 border rounded-lg hover:bg-secondary/50 transition-colors">
+                               <Avatar>
+                                    <AvatarImage src={post.author.avatar} alt={post.author.name} data-ai-hint="person face"/>
+                                    <AvatarFallback>{post.author.name.substring(0,2)}</AvatarFallback>
+                               </Avatar>
+                               <div className="flex-1">
+                                    <h3 className="font-semibold text-lg leading-tight">{post.title}</h3>
+                                    <div className="text-sm text-muted-foreground mt-1">
+                                        Posted by {post.author.name} &bull; {formatDistanceToNow(post.timestamp, { addSuffix: true })}
+                                    </div>
+                                    <div className="flex items-center gap-4 mt-2 text-sm">
+                                        <Badge variant="secondary">{post.category}</Badge>
+                                        <div className="flex items-center gap-1 text-muted-foreground">
+                                            <ThumbsUp className="h-4 w-4" />
+                                            <span>{post.upvotes}</span>
+                                        </div>
+                                        <div className="flex items-center gap-1 text-muted-foreground">
+                                            <MessageSquare className="h-4 w-4" />
+                                            <span>{post.comments}</span>
+                                        </div>
+                                    </div>
+                               </div>
+                            </div>
+                        ))
+                    )}
                 </CardContent>
             </Card>
         </div>
