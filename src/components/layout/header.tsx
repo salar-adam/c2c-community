@@ -14,6 +14,7 @@ import {
 import { SidebarTrigger } from "../ui/sidebar";
 import Link from "next/link";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { ThemeToggle } from "./theme-toggle";
 
 export function Header() {
   const isMobile = useIsMobile();
@@ -29,6 +30,7 @@ export function Header() {
           className="w-full rounded-lg bg-secondary pl-8 md:w-[200px] lg:w-[320px]"
         />
       </div>
+      <ThemeToggle />
       <Button variant="ghost" size="icon" className="rounded-full">
         <Bell className="h-5 w-5" />
         <span className="sr-only">Toggle notifications</span>

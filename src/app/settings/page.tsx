@@ -7,8 +7,11 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import Link from "next/link"
+import { useTheme } from "next-themes"
 
 export default function SettingsPage() {
+  const { theme, setTheme } = useTheme()
+
   return (
     <div className="space-y-6">
       <div>
@@ -95,7 +98,7 @@ export default function SettingsPage() {
             <CardContent className="space-y-4">
                <div className="space-y-2">
                  <Label>Theme</Label>
-                 <RadioGroup defaultValue="light" disabled>
+                 <RadioGroup value={theme} onValueChange={setTheme}>
                     <div className="flex items-center space-x-2">
                         <RadioGroupItem value="light" id="light" />
                         <Label htmlFor="light">Light</Label>
@@ -103,6 +106,10 @@ export default function SettingsPage() {
                      <div className="flex items-center space-x-2">
                         <RadioGroupItem value="dark" id="dark" />
                         <Label htmlFor="dark">Dark</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="system" id="system" />
+                        <Label htmlFor="system">System</Label>
                     </div>
                  </RadioGroup>
                </div>
