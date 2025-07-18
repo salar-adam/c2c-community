@@ -9,6 +9,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { GeoNexusLogo } from "@/components/icons"
+import Link from "next/link"
 
 export default function LoginPage() {
   return (
@@ -20,7 +21,6 @@ export default function LoginPage() {
             </div>
           <CardTitle className="text-2xl">Welcome Back</CardTitle>
           <CardDescription>
-            Want to join? You have been invited by an elite member. <br/>
             Enter your name and password to login.
           </CardDescription>
         </CardHeader>
@@ -42,6 +42,16 @@ export default function LoginPage() {
             <Button type="submit" className="w-full">
               Login
             </Button>
+            <div className="mt-4 text-center text-sm">
+              <Link href="#" className="underline">
+                Want to join our private community?
+              </Link>
+            </div>
+            <div className="text-center text-sm">
+              <Link href="#" className="underline">
+                Invited by an elite member?
+              </Link>
+            </div>
           </div>
         </CardContent>
       </Card>
