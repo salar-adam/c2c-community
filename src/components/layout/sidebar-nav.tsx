@@ -1,3 +1,4 @@
+
 import {
   LayoutDashboard,
   Users,
@@ -12,6 +13,7 @@ import {
   User,
   Settings,
   FlaskConical,
+  Rocket,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
@@ -36,6 +38,7 @@ const mainNav = [
   { href: "/events", label: "Events", icon: Calendar },
   { href: "/jobs", label: "Jobs", icon: Briefcase },
   { href: "/geomyths", label: "GeoMyth Busters", icon: FlaskConical },
+  { href: "/planetary-geology", label: "Planetary Geology", icon: Rocket },
 ];
 
 const aiToolsNav = [
