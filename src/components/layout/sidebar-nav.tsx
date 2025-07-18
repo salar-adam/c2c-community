@@ -28,7 +28,7 @@ import {
   SidebarFooter,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
-import { GeoNexusLogo } from "@/components/icons";
+import { GeoNexusLogo, RockHammerIcon } from "@/components/icons";
 
 const mainNav = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -41,6 +41,7 @@ const mainNav = [
   { href: "/geomyths", label: "GeoMyth Busters", icon: FlaskConical },
   { href: "/planetary-geology", label: "Planetary Geology", icon: Rocket },
   { href: "/career-compass", label: "Career Compass", icon: Compass },
+  { href: "/rock-vault", label: "Rock Vault", icon: RockHammerIcon },
 ];
 
 const aiToolsNav = [
