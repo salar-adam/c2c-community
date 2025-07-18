@@ -14,14 +14,23 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { GeoNexusLogo } from "@/components/icons"
 import Link from "next/link"
+import { submitJoinRequest } from "@/app/actions"
 
 export default function JoinRequestPage() {
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    // In a real app, you would handle form submission to a backend here.
-    setIsSubmitted(true)
+    const formData = new FormData(event.currentTarget)
+    const result = await submitJoinRequest(formData)
+    
+    if (result.success) {
+      setIsSubmitted(true)
+      setError(null)
+    } else {
+      setError(result.message)
+    }
   }
 
   return (
@@ -52,19 +61,19 @@ export default function JoinRequestPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="grid gap-2">
                     <Label htmlFor="first-name">First Name</Label>
-                    <Input id="first-name" placeholder="Enter your first name" required />
+                    <Input id="first-name" name="first-name" placeholder="Enter your first name" required />
                   </div>
                   <div className="grid gap-2">
                     <Label htmlFor="last-name">Last Name</Label>
-                    <Input id="last-name" placeholder="Enter your last name" required />
+                    <Input id="last-name" name="last-name" placeholder="Enter your last name" required />
                   </div>
                   <div className="grid gap-2">
                     <Label htmlFor="email">Email Address</Label>
-                    <Input id="email" type="email" placeholder="Enter your email address" required />
+                    <Input id="email" name="email" type="email" placeholder="Enter your email address" required />
                   </div>
                   <div className="grid gap-2">
                     <Label htmlFor="phone">Phone Number</Label>
-                    <Input id="phone" type="tel" placeholder="Enter your phone number" required />
+                    <Input id="phone" name="phone" type="tel" placeholder="Enter your phone number" required />
                   </div>
                 </div>
               </div>
@@ -74,15 +83,15 @@ export default function JoinRequestPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="grid gap-2">
                     <Label htmlFor="company">Current Company/Organization</Label>
-                    <Input id="company" placeholder="Enter your company name" required />
+                    <Input id="company" name="company" placeholder="Enter your company name" required />
                   </div>
                   <div className="grid gap-2">
                     <Label htmlFor="job-title">Job Title</Label>
-                    <Input id="job-title" placeholder="Enter your job title" required />
+                    <Input id="job-title" name="job-title" placeholder="Enter your job title" required />
                   </div>
                   <div className="grid gap-2 md:col-span-2">
                     <Label htmlFor="experience">Years of Experience in Related Fields</Label>
-                    <Input id="experience" type="number" placeholder="Enter years of experience" required />
+                    <Input id="experience" name="experience" type="number" placeholder="Enter years of experience" required />
                   </div>
                 </div>
               </div>
@@ -92,18 +101,20 @@ export default function JoinRequestPage() {
                 <div className="grid gap-4">
                   <div className="grid gap-2">
                     <Label htmlFor="learning-goals">What are your learning goals for this course?</Label>
-                    <Textarea id="learning-goals" placeholder="Please share your goals and what you hope to achieve..." required />
+                    <Textarea id="learning-goals" name="learning-goals" placeholder="Please share your goals and what you hope to achieve..." required />
                   </div>
                    <div className="grid gap-2">
                     <Label htmlFor="how-did-you-hear">How did you hear about us?</Label>
-                    <Input id="how-did-you-hear" placeholder="Google, colleague, social media, etc." required />
+                    <Input id="how-did-you-hear" name="how-did-you-hear" placeholder="Google, colleague, social media, etc." required />
                   </div>
                   <div className="grid gap-2">
                     <Label htmlFor="invitation-code">Invitation Code (Optional)</Label>
-                    <Input id="invitation-code" placeholder="Enter your invitation code" />
+                    <Input id="invitation-code" name="invitation-code" placeholder="Enter your invitation code" />
                   </div>
                 </div>
               </div>
+              
+              {error && <p className="text-sm text-destructive">{error}</p>}
 
               <Button type="submit" className="w-full">
                 Submit Application

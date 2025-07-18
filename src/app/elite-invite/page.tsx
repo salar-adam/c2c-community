@@ -13,14 +13,23 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { GeoNexusLogo } from "@/components/icons"
 import Link from "next/link"
+import { submitEliteInvite } from "@/app/actions"
 
 export default function EliteInvitePage() {
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    // In a real app, you would handle form submission to a backend here.
-    setIsSubmitted(true)
+    const formData = new FormData(event.currentTarget)
+    const result = await submitEliteInvite(formData)
+
+    if (result.success) {
+      setIsSubmitted(true)
+      setError(null)
+    } else {
+      setError(result.message)
+    }
   }
 
   return (
@@ -48,12 +57,15 @@ export default function EliteInvitePage() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid gap-2">
                 <Label htmlFor="elite-member-name">Name of the Elite Member</Label>
-                <Input id="elite-member-name" placeholder="Enter the member's name" required />
+                <Input id="elite-member-name" name="elite-member-name" placeholder="Enter the member's name" required />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="invitation-code">Invitation Code</Label>
-                <Input id="invitation-code" placeholder="Enter your invitation code" required />
+                <Input id="invitation-code" name="invitation-code" placeholder="Enter your invitation code" required />
               </div>
+              
+              {error && <p className="text-sm text-destructive">{error}</p>}
+
               <Button type="submit" className="w-full">
                 Submit
               </Button>
