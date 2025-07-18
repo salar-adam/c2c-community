@@ -64,15 +64,15 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid gap-6 grid-cols-1 lg:grid-cols-3 auto-rows-fr">
-        {/* Community Widget */}
-        <div className="lg:col-span-3">
-            <Card className="h-full bg-card/60" style={{backgroundColor: 'hsl(var(--card) / 0.4)'}}>
+        {/* Community & Events Widgets */}
+        <div className="lg:col-span-2 space-y-6">
+            <Card className="bg-card">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2"><Users className="h-5 w-5"/> Community</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     {recentActivityData.slice(0, 1).map((post, index) => (
-                        <div key={index} className="flex items-start gap-4 p-3 border rounded-lg hover:bg-black/10 dark:hover:bg-white/10 transition-colors">
+                        <div key={index} className="flex items-start gap-4 p-3 border rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
                            <Avatar>
                                 <AvatarImage src={post.author.avatar} alt={post.author.name} data-ai-hint="person face"/>
                                 <AvatarFallback>{post.author.name.substring(0,2)}</AvatarFallback>
@@ -102,11 +102,8 @@ export default function DashboardPage() {
                     </Button>
                 </CardFooter>
             </Card>
-        </div>
 
-        {/* Featured Resource Widget */}
-        <div className="lg:col-span-2">
-            <Card className="h-full" style={{backgroundColor: 'hsl(var(--card) / 0.4)'}}>
+            <Card className="bg-card">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2"><BookCopy className="h-5 w-5"/> Featured Resource</CardTitle>
                 </CardHeader>
@@ -121,11 +118,30 @@ export default function DashboardPage() {
                     </Button>
                 </CardFooter>
             </Card>
+
+             <Card className="bg-card">
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2"><Calendar className="h-5 w-5"/> Upcoming Events</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    {upcomingEventsData.map((event, index) => (
+                        <div key={index}>
+                            <p className="font-semibold">{event.title}</p>
+                            <p className="text-sm text-muted-foreground">{event.date.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })} &bull; {event.location}</p>
+                        </div>
+                    ))}
+                </CardContent>
+                 <CardFooter>
+                    <Button asChild variant="outline" size="sm">
+                        <Link href="/events">Events</Link>
+                    </Button>
+                </CardFooter>
+            </Card>
         </div>
-        
+
         {/* Top Contributors Widget */}
-        <div className="lg:col-span-1 row-span-2">
-             <Card className="h-full" style={{backgroundColor: 'hsl(var(--card) / 0.4)'}}>
+        <div className="lg:col-span-1">
+             <Card className="h-full bg-card">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2"><Trophy className="h-5 w-5"/> Top Contributors</CardTitle>
                 </CardHeader>
@@ -151,30 +167,9 @@ export default function DashboardPage() {
                 </CardFooter>
             </Card>
         </div>
-
-        {/* Upcoming Events Widget */}
-         <div className="lg:col-span-2">
-            <Card className="h-full" style={{backgroundColor: 'hsl(var(--card) / 0.4)'}}>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><Calendar className="h-5 w-5"/> Upcoming Events</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    {upcomingEventsData.map((event, index) => (
-                        <div key={index}>
-                            <p className="font-semibold">{event.title}</p>
-                            <p className="text-sm text-muted-foreground">{event.date.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })} &bull; {event.location}</p>
-                        </div>
-                    ))}
-                </CardContent>
-                 <CardFooter>
-                    <Button asChild variant="outline" size="sm">
-                        <Link href="/events">Events</Link>
-                    </Button>
-                </CardFooter>
-            </Card>
-        </div>
-
       </div>
     </div>
   )
 }
+
+    
