@@ -99,8 +99,8 @@ export default function JoinRequestPage() {
                     <Input id="how-did-you-hear" placeholder="Google, colleague, social media, etc." required />
                   </div>
                   <div className="grid gap-2">
-                    <Label htmlFor="invitation-code">Invitation Code</Label>
-                    <Input id="invitation-code" placeholder="Enter your invitation code (optional)" />
+                    <Label htmlFor="invitation-code">Invitation Code (Optional)</Label>
+                    <Input id="invitation-code" placeholder="Enter your invitation code" />
                   </div>
                 </div>
               </div>
