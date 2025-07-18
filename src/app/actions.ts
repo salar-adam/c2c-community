@@ -3,7 +3,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { db } from '@/lib/firebase'
-import { collection, addDoc, writeBatch, getDocs, Timestamp } from 'firebase/firestore'
+import { collection, addDoc, writeBatch, getDocs, Timestamp, query, limit } from 'firebase/firestore'
 
 export async function submitJoinRequest(formData: FormData) {
   const rawFormData = {
@@ -54,9 +54,9 @@ export async function seedCommunityPosts() {
   const postsCollection = collection(db, 'community-posts');
 
   try {
-    // Optional: Check if posts already exist to prevent duplicate seeding
-    const existingPosts = await getDocs(postsCollection);
-    if (!existingPosts.empty) {
+    const q = query(postsCollection, limit(1));
+    const snapshot = await getDocs(q);
+    if (!snapshot.empty) {
       return { success: false, message: "Sample posts have already been added." };
     }
 
@@ -98,8 +98,8 @@ export async function seedCommunityPosts() {
     ];
 
     samplePosts.forEach(post => {
-      const docRef = addDoc(postsCollection, {})._key.path.segments.slice(-1)[0];
-      batch.set(collection(db, 'community-posts').doc(docRef), post);
+      const docRef = collection(db, 'community-posts').doc();
+      batch.set(docRef, post);
     });
 
     await batch.commit();
@@ -109,5 +109,71 @@ export async function seedCommunityPosts() {
   } catch (error) {
     console.error("Error seeding posts: ", error);
     return { success: false, message: 'An error occurred while seeding posts.' };
+  }
+}
+
+export async function seedResources() {
+  const resourcesCollection = collection(db, 'resources');
+
+  try {
+    const q = query(resourcesCollection, limit(1));
+    const snapshot = await getDocs(q);
+    if (!snapshot.empty) {
+      return { success: false, message: "Sample resources have already been added." };
+    }
+
+    const batch = writeBatch(db);
+
+    const sampleResources = [
+      {
+        title: "Seismic Stratigraphy of the North Sea",
+        description: "A comprehensive analysis of seismic data and stratigraphic sequences in the Viking Graben.",
+        type: "Research Paper",
+        icon: "FileText",
+      },
+      {
+        title: "Geothermal Energy Potential in Iceland: A Case Study",
+        description: "In-depth case study exploring the geological factors contributing to Iceland's geothermal resources.",
+        type: "Case Study",
+        icon: "FileText",
+      },
+      {
+        title: "Introduction to Well Logging",
+        description: "A video tutorial series covering the fundamentals of well log interpretation for subsurface analysis.",
+        type: "Video Series",
+        icon: "Video",
+      },
+      {
+        title: "USGS Earthquake Catalog",
+        description: "Public dataset containing information on global earthquake events, magnitudes, and locations.",
+        type: "Dataset",
+        icon: "Database",
+      },
+      {
+        title: "Mineralogy of the Andes Mountains",
+        description: "Detailed study on the mineral compositions and formations found throughout the Andean mountain range.",
+        type: "Research Paper",
+        icon: "FileText",
+      },
+      {
+        title: "Offshore Drilling Project: Gulf of Mexico",
+        description: "A case study detailing the engineering and geological challenges of a deepwater drilling operation.",
+        type: "Case Study",
+        icon: "FileText",
+      },
+    ];
+
+    sampleResources.forEach(resource => {
+      const docRef = collection(db, 'resources').doc();
+      batch.set(docRef, resource);
+    });
+
+    await batch.commit();
+    revalidatePath('/resources');
+    return { success: true, message: 'Sample resources added successfully.' };
+
+  } catch (error) {
+    console.error("Error seeding resources: ", error);
+    return { success: false, message: 'An error occurred while seeding resources.' };
   }
 }
