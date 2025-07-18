@@ -71,7 +71,7 @@ export default function DashboardPage() {
                     <CardTitle className="flex items-center gap-2"><Users className="h-5 w-5"/> Community</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    {recentActivity.map((post, index) => (
+                    {recentActivity.slice(0, 1).map((post, index) => (
                         <div key={index} className="flex items-start gap-4 p-3 border rounded-lg hover:bg-secondary/50 transition-colors">
                            <Avatar>
                                 <AvatarImage src={post.author.avatar} alt={post.author.name} data-ai-hint="person face"/>
@@ -98,7 +98,7 @@ export default function DashboardPage() {
                 </CardContent>
                  <CardFooter>
                     <Button asChild variant="outline">
-                        <Link href="/community">View All Posts</Link>
+                        <Link href="/community">Community</Link>
                     </Button>
                 </CardFooter>
             </Card>
@@ -117,7 +117,7 @@ export default function DashboardPage() {
                 </CardContent>
                 <CardFooter>
                     <Button asChild variant="outline">
-                        <Link href="/resources">Browse All Resources</Link>
+                        <Link href="/resources">Resources</Link>
                     </Button>
                 </CardFooter>
             </Card>
@@ -146,7 +146,7 @@ export default function DashboardPage() {
                 </CardContent>
                  <CardFooter>
                     <Button asChild variant="outline" size="sm">
-                        <Link href="/leaderboard">View Full Leaderboard</Link>
+                        <Link href="/leaderboard">Leaderboard</Link>
                     </Button>
                 </CardFooter>
             </Card>
@@ -168,7 +168,7 @@ export default function DashboardPage() {
                 </CardContent>
                  <CardFooter>
                     <Button asChild variant="outline" size="sm">
-                        <Link href="/events">View All Events</Link>
+                        <Link href="/events">Events</Link>
                     </Button>
                 </CardFooter>
             </Card>
