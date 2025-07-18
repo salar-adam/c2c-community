@@ -3,6 +3,7 @@ import './globals.css';
 import { Inter } from 'next/font/google';
 import { cn } from '@/lib/utils';
 import { Toaster } from '@/components/ui/toaster';
+import { AppLayout } from '@/components/layout/app-layout';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-body' });
 
@@ -27,7 +28,9 @@ export default function RootLayout({
         />
       </head>
       <body className={cn('font-body antialiased', inter.variable)}>
-        {children}
+        <AppLayout>
+          {children}
+        </AppLayout>
         <Toaster />
       </body>
     </html>

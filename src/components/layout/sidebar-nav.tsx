@@ -27,7 +27,7 @@ import {
 import { GeoNexusLogo } from "@/components/icons";
 
 const mainNav = [
-  { href: "/", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/community", label: "Community", icon: Users },
   { href: "/resources", label: "Resources", icon: BookCopy },
   { href: "/ask-a-geoscientist", label: "Ask an Expert", icon: MessageCircleQuestion },
