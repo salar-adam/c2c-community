@@ -66,13 +66,13 @@ export default function DashboardPage() {
       <div className="grid gap-6 grid-cols-1 lg:grid-cols-3 auto-rows-fr">
         {/* Community Widget */}
         <div className="lg:col-span-3">
-            <Card className="h-full">
+            <Card className="h-full bg-card/60" style={{backgroundColor: 'hsl(var(--card) / 0.4)'}}>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2"><Users className="h-5 w-5"/> Community</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    {recentActivityData.map((post, index) => (
-                        <div key={index} className="flex items-start gap-4 p-3 border rounded-lg hover:bg-secondary/50 transition-colors">
+                    {recentActivityData.slice(0, 1).map((post, index) => (
+                        <div key={index} className="flex items-start gap-4 p-3 border rounded-lg hover:bg-black/10 dark:hover:bg-white/10 transition-colors">
                            <Avatar>
                                 <AvatarImage src={post.author.avatar} alt={post.author.name} data-ai-hint="person face"/>
                                 <AvatarFallback>{post.author.name.substring(0,2)}</AvatarFallback>
@@ -106,7 +106,7 @@ export default function DashboardPage() {
 
         {/* Featured Resource Widget */}
         <div className="lg:col-span-2">
-            <Card className="h-full">
+            <Card className="h-full" style={{backgroundColor: 'hsl(var(--card) / 0.4)'}}>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2"><BookCopy className="h-5 w-5"/> Featured Resource</CardTitle>
                 </CardHeader>
@@ -125,7 +125,7 @@ export default function DashboardPage() {
         
         {/* Top Contributors Widget */}
         <div className="lg:col-span-1 row-span-2">
-             <Card className="h-full">
+             <Card className="h-full" style={{backgroundColor: 'hsl(var(--card) / 0.4)'}}>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2"><Trophy className="h-5 w-5"/> Top Contributors</CardTitle>
                 </CardHeader>
@@ -154,7 +154,7 @@ export default function DashboardPage() {
 
         {/* Upcoming Events Widget */}
          <div className="lg:col-span-2">
-            <Card className="h-full">
+            <Card className="h-full" style={{backgroundColor: 'hsl(var(--card) / 0.4)'}}>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2"><Calendar className="h-5 w-5"/> Upcoming Events</CardTitle>
                 </CardHeader>
