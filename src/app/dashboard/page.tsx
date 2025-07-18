@@ -32,12 +32,18 @@ const upcomingEvents = [
       date: new Date(new Date().setDate(new Date().getDate() + 7)), // 1 week from now
       location: "Online",
     },
+    {
+      title: "Annual Geosciences Conference 2024",
+      date: new Date(new Date().setDate(new Date().getDate() + 14)),
+      location: "Houston, TX",
+    }
 ]
 
 const topContributors = [
     { rank: 1, name: "Salar", avatar: "https://placehold.co/100x100.png", xp: 15230 },
     { rank: 2, name: "Dr. Evelyn Reed", avatar: "https://placehold.co/100x100.png?text=ER", xp: 14890 },
     { rank: 3, name: "Chen Wang", avatar: "https://placehold.co/100x100.png?text=CW", xp: 14500 },
+    { rank: 4, name: "Alex Johnson", avatar: "https://placehold.co/100x100.png?text=AJ", xp: 12100 },
 ]
 
 const featuredResource = {
@@ -57,12 +63,12 @@ export default function DashboardPage() {
         </p>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3 items-start">
-        {/* Recent Activity */}
-        <div className="lg:col-span-2 space-y-6">
-            <Card>
+      <div className="grid gap-6 grid-cols-1 lg:grid-cols-3 auto-rows-fr">
+        {/* Community Widget */}
+        <div className="lg:col-span-3">
+            <Card className="h-full">
                 <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><Users className="h-5 w-5"/> Recent Community Activity</CardTitle>
+                    <CardTitle className="flex items-center gap-2"><Users className="h-5 w-5"/> Community</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     {recentActivity.map((post, index) => (
@@ -96,8 +102,11 @@ export default function DashboardPage() {
                     </Button>
                 </CardFooter>
             </Card>
+        </div>
 
-            <Card>
+        {/* Featured Resource Widget */}
+        <div className="lg:col-span-2">
+            <Card className="h-full">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2"><BookCopy className="h-5 w-5"/> Featured Resource</CardTitle>
                 </CardHeader>
@@ -114,31 +123,13 @@ export default function DashboardPage() {
             </Card>
         </div>
         
-        {/* Side Widgets */}
-        <div className="space-y-6">
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><Calendar className="h-5 w-5"/> Upcoming Events</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                    {upcomingEvents.map((event, index) => (
-                        <div key={index}>
-                            <p className="font-semibold">{event.title}</p>
-                            <p className="text-sm text-muted-foreground">{event.date.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })} &bull; {event.location}</p>
-                        </div>
-                    ))}
-                </CardContent>
-                 <CardFooter>
-                    <Button asChild variant="outline" size="sm">
-                        <Link href="/events">View All Events</Link>
-                    </Button>
-                </CardFooter>
-            </Card>
-             <Card>
+        {/* Top Contributors Widget */}
+        <div className="lg:col-span-1 row-span-2">
+             <Card className="h-full">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2"><Trophy className="h-5 w-5"/> Top Contributors</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-3">
+                <CardContent className="space-y-4">
                     {topContributors.map((user) => (
                          <div key={user.rank} className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
@@ -160,6 +151,29 @@ export default function DashboardPage() {
                 </CardFooter>
             </Card>
         </div>
+
+        {/* Upcoming Events Widget */}
+         <div className="lg:col-span-2">
+            <Card className="h-full">
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2"><Calendar className="h-5 w-5"/> Upcoming Events</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    {upcomingEvents.map((event, index) => (
+                        <div key={index}>
+                            <p className="font-semibold">{event.title}</p>
+                            <p className="text-sm text-muted-foreground">{event.date.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })} &bull; {event.location}</p>
+                        </div>
+                    ))}
+                </CardContent>
+                 <CardFooter>
+                    <Button asChild variant="outline" size="sm">
+                        <Link href="/events">View All Events</Link>
+                    </Button>
+                </CardFooter>
+            </Card>
+        </div>
+
       </div>
     </div>
   )
