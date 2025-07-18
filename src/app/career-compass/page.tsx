@@ -3,31 +3,43 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Compass, Lightbulb, GraduationCap, Briefcase, Loader2, Wand2, Map, BookOpen, Users } from "lucide-react"
+import { generateCareerPath, GenerateCareerPathOutput } from "@/ai/flows/generate-career-path"
+import { useToast } from "@/hooks/use-toast"
 
-// This is a placeholder for the actual output from the AI
-const placeholderResult = {
-  suggestedRoles: [
-    { name: "Hydrogeologist", description: "Specializes in groundwater, its movement, and distribution." },
-    { name: "Geotechnical Engineer", description: "Applies geological principles to engineering projects." },
-  ],
-  skillGaps: ["Groundwater Modeling (MODFLOW)", "Geotechnical Software (PLAXIS)"],
-  nextSteps: [
-    { title: "Take an online course in Hydrogeology", category: "Education", icon: GraduationCap },
-    { title: "Network with professionals in water resource management", category: "Networking", icon: Users },
-    { title: "Explore entry-level jobs in environmental consulting", category: "Job Search", icon: Briefcase },
-  ]
-}
+const iconMap = {
+    Education: GraduationCap,
+    Networking: Users,
+    "Job Search": Briefcase,
+};
 
 export default function CareerCompassPage() {
   const [skills, setSkills] = useState("Seismic data interpretation, well logging")
   const [interests, setInterests] = useState("Water resources, environmental protection")
   const [goals, setGoals] = useState("Transition into a role with more field work and environmental impact.")
   const [loading, setLoading] = useState(false)
-  const [result, setResult] = useState<any>(null)
+  const [result, setResult] = useState<GenerateCareerPathOutput | null>(null)
+  const { toast } = useToast()
+
+  const handleGenerate = async () => {
+    setLoading(true);
+    setResult(null);
+    try {
+        const response = await generateCareerPath({ skills, interests, goals });
+        setResult(response);
+    } catch (error) {
+        console.error("Error generating career path:", error);
+        toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Failed to generate career path. Please try again."
+        })
+    } finally {
+        setLoading(false);
+    }
+  }
 
   return (
     <div className="space-y-8">
@@ -79,8 +91,8 @@ export default function CareerCompassPage() {
                   rows={3}
                 />
               </div>
-               <Button className="w-full" disabled>
-                <Wand2 className="mr-2 h-4 w-4" />
+               <Button className="w-full" onClick={handleGenerate} disabled={loading}>
+                {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
                 Generate Career Path
               </Button>
             </CardContent>
@@ -111,7 +123,7 @@ export default function CareerCompassPage() {
                         <div>
                             <h3 className="text-lg font-semibold flex items-center gap-2 mb-3"><Briefcase className="h-5 w-5 text-primary" /> Suggested Roles</h3>
                             <div className="grid sm:grid-cols-2 gap-4">
-                                {result.suggestedRoles.map((role: any) => (
+                                {result.suggestedRoles.map((role) => (
                                     <div key={role.name} className="p-4 border rounded-lg">
                                         <p className="font-bold">{role.name}</p>
                                         <p className="text-sm text-muted-foreground">{role.description}</p>
@@ -122,7 +134,7 @@ export default function CareerCompassPage() {
                          <div>
                             <h3 className="text-lg font-semibold flex items-center gap-2 mb-3"><Lightbulb className="h-5 w-5 text-primary" /> Recommended Skills to Develop</h3>
                              <div className="flex flex-wrap gap-2">
-                                {result.skillGaps.map((skill: any) => (
+                                {result.skillGaps.map((skill) => (
                                     <div key={skill} className="rounded-full bg-secondary px-3 py-1 text-sm text-secondary-foreground">
                                         {skill}
                                     </div>
@@ -132,15 +144,17 @@ export default function CareerCompassPage() {
                          <div>
                             <h3 className="text-lg font-semibold flex items-center gap-2 mb-3"><BookOpen className="h-5 w-5 text-primary" /> Actionable Next Steps</h3>
                             <div className="space-y-3">
-                                {result.nextSteps.map((step: any) => (
+                                {result.nextSteps.map((step) => {
+                                    const Icon = iconMap[step.category] || BookOpen;
+                                    return (
                                      <div key={step.title} className="flex items-start gap-3">
-                                        <div className="pt-1 text-primary"><step.icon className="h-4 w-4" /></div>
+                                        <div className="pt-1 text-primary"><Icon className="h-4 w-4" /></div>
                                         <div>
                                             <p className="font-medium">{step.title}</p>
                                             <p className="text-xs text-muted-foreground">{step.category}</p>
                                         </div>
                                     </div>
-                                ))}
+                                )})}
                             </div>
                         </div>
                     </div>
