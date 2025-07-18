@@ -14,6 +14,7 @@ import {
   Settings,
   FlaskConical,
   Rocket,
+  Compass,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
@@ -39,6 +40,7 @@ const mainNav = [
   { href: "/jobs", label: "Jobs", icon: Briefcase },
   { href: "/geomyths", label: "GeoMyth Busters", icon: FlaskConical },
   { href: "/planetary-geology", label: "Planetary Geology", icon: Rocket },
+  { href: "/career-compass", label: "Career Compass", icon: Compass },
 ];
 
 const aiToolsNav = [
