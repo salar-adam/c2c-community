@@ -6,7 +6,7 @@ import {
   MessageCircleQuestion,
   Trophy,
   ScanSearch,
-  Bot,
+  MessageSquare,
   FileText,
   Calendar,
   Briefcase,
@@ -46,8 +46,8 @@ const mainNav = [
 
 const aiToolsNav = [
   { href: "/identify-image", label: "Image Identifier", icon: ScanSearch },
-  { href: "/geobot", label: "GeoBot", icon: Bot },
-  { href: "/summarize-data", label: "AI Summary", icon: FileText },
+  { href: "/geoinfo", label: "GeoInfo", icon: MessageSquare },
+  { href: "/summarize-data", label: "Summary", icon: FileText },
 ];
 
 export function SidebarNav() {
@@ -82,7 +82,7 @@ export function SidebarNav() {
         </SidebarMenu>
         <SidebarSeparator />
         <SidebarMenu>
-            <div className="px-2 text-xs font-medium text-muted-foreground">AI Tools</div>
+            <div className="px-2 text-xs font-medium text-muted-foreground">Tools</div>
             {aiToolsNav.map((item) => (
                 <SidebarMenuItem key={item.href}>
                 <Link href={item.href} passHref>

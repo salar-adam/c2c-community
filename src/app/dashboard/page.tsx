@@ -6,29 +6,8 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { ScanSearch, Bot, FileText, ArrowRight, Users, Calendar, Trophy, BookCopy, ThumbsUp, MessageSquare } from "lucide-react"
+import { Users, Calendar, Trophy, BookCopy, ThumbsUp, MessageSquare } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
-
-const quickAccessTools = [
-    { 
-        href: "/identify-image", 
-        title: "Image Identification", 
-        description: "Upload a photo of a rock for AI-powered identification.", 
-        icon: ScanSearch 
-    },
-    { 
-        href: "/geobot", 
-        title: "GeoBot Assistant", 
-        description: "Ask our AI assistant any geology-related question.", 
-        icon: Bot 
-    },
-    { 
-        href: "/summarize-data", 
-        title: "Data Summarizer", 
-        description: "Summarize complex research papers or data logs.", 
-        icon: FileText 
-    },
-];
 
 const recentActivity = [
     {
@@ -76,30 +55,6 @@ export default function DashboardPage() {
         <p className="text-muted-foreground">
           Welcome back, here's a snapshot of your GeoNexus community.
         </p>
-      </div>
-
-      {/* Quick Access AI Tools */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {quickAccessTools.map(tool => (
-             <Card key={tool.href}>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                    <tool.icon className="h-6 w-6 text-primary" />
-                    {tool.title}
-                    </CardTitle>
-                    <CardDescription>
-                    {tool.description}
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <Button asChild>
-                    <Link href={tool.href}>
-                        Use Tool <ArrowRight className="ml-2 h-4 w-4" />
-                    </Link>
-                    </Button>
-                </CardContent>
-            </Card>
-        ))}
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3 items-start">

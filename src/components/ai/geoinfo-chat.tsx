@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { askGeoBot } from "@/ai/flows/ask-geobot";
+import { askGeoInfo } from "@/ai/flows/ask-geoinfo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2, Send } from "lucide-react";
@@ -15,7 +15,7 @@ interface Message {
   text: string;
 }
 
-export function GeobotChat() {
+export function GeoinfoChat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [inProgress, setInProgress] = useState(false);
@@ -42,7 +42,7 @@ export function GeobotChat() {
       setInput("");
       setInProgress(true);
       try {
-        const result = await askGeoBot({ question });
+        const result = await askGeoInfo({ question });
         if (result) {
           setMessages((prev) => [...prev, { role: "bot", text: result.answer }]);
         }
