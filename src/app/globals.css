@@ -4,16 +4,16 @@
 
 @layer base {
   :root {
-    --background: 220 40% 98%;
+    --background: 122 10% 90%;
     --foreground: 220 10% 20%;
 
-    --card: 220 40% 100% / 0.1;
+    --card: 220 40% 100% / 0.4;
     --card-foreground: 220 10% 20%;
     
     --popover: 220 40% 100%;
     --popover-foreground: 220 10% 20%;
     
-    --primary: 122 39% 38%;
+    --primary: 122 39% 48%;
     --primary-foreground: 220 40% 98%;
     
     --secondary: 220 20% 90%;
@@ -51,10 +51,10 @@
   }
 
   .dark {
-    --background: 220 15% 10%;
+    --background: 220 20% 5%;
     --foreground: 220 15% 90%;
     
-    --card: 220 5% 10% / 0.15;
+    --card: 220 15% 95% / 0.1;
     --card-foreground: 220 15% 90%;
     
     --popover: 220 15% 5%;
@@ -75,7 +75,7 @@
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 60 9.1% 97.8%;
 
-    --border: 220 15% 25% / 0.25;
+    --border: 220 15% 90% / 0.2;
     --input: 220 15% 25%;
     --ring: 122 80% 65%;
 
@@ -102,11 +102,25 @@
   }
   body {
     @apply bg-background text-foreground;
+    background: linear-gradient(135deg, hsl(122, 39%, 48%), hsl(220, 40%, 30%), hsl(24, 30%, 45%));
+    background-size: 400% 400%;
+    animation: gradientShift 20s ease infinite;
+  }
+  .dark body {
+    background: linear-gradient(135deg, hsl(220, 20%, 10%), hsl(122, 80%, 20%), hsl(260, 50%, 20%));
+    background-size: 400% 400%;
+    animation: gradientShift 20s ease infinite;
   }
   .bg-card {
     background-color: hsl(var(--card));
     backdrop-filter: blur(10px) saturate(120%);
     -webkit-backdrop-filter: blur(10px) saturate(120%);
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+    @apply bg-gradient-to-br;
   }
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }

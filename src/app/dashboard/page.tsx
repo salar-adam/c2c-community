@@ -2,10 +2,9 @@
 "use client"
 
 import Link from "next/link"
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
 import { Users, Calendar, Trophy, BookCopy, ThumbsUp, MessageSquare } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 import { useState, useEffect } from "react"
@@ -64,15 +63,15 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid gap-6 grid-cols-1 lg:grid-cols-3 auto-rows-fr">
-        {/* Community & Events Widgets */}
+        {/* Main Content Area */}
         <div className="lg:col-span-2 space-y-6">
-            <Card className="bg-card">
+            <Card className="bg-card from-blue-400/20 to-cyan-400/10 dark:from-blue-400/20 dark:to-cyan-400/10">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2"><Users className="h-5 w-5"/> Community</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     {recentActivityData.slice(0, 1).map((post, index) => (
-                        <div key={index} className="flex items-start gap-4 p-3 border rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+                        <div key={index} className="flex items-start gap-4">
                            <Avatar>
                                 <AvatarImage src={post.author.avatar} alt={post.author.name} data-ai-hint="person face"/>
                                 <AvatarFallback>{post.author.name.substring(0,2)}</AvatarFallback>
@@ -103,45 +102,45 @@ export default function DashboardPage() {
                 </CardFooter>
             </Card>
 
-            <Card className="bg-card">
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><BookCopy className="h-5 w-5"/> Featured Resource</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <h3 className="font-semibold">{featuredResourceData.title}</h3>
-                    <p className="text-sm text-muted-foreground mt-1">{featuredResourceData.description}</p>
-                    <Badge variant="secondary" className="mt-3">{featuredResourceData.type}</Badge>
-                </CardContent>
-                <CardFooter>
-                    <Button asChild variant="outline">
-                        <Link href="/resources">Resources</Link>
-                    </Button>
-                </CardFooter>
-            </Card>
-
-             <Card className="bg-card">
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><Calendar className="h-5 w-5"/> Upcoming Events</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    {upcomingEventsData.map((event, index) => (
-                        <div key={index}>
-                            <p className="font-semibold">{event.title}</p>
-                            <p className="text-sm text-muted-foreground">{event.date.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })} &bull; {event.location}</p>
-                        </div>
-                    ))}
-                </CardContent>
-                 <CardFooter>
-                    <Button asChild variant="outline" size="sm">
-                        <Link href="/events">Events</Link>
-                    </Button>
-                </CardFooter>
-            </Card>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Card className="bg-card from-green-400/20 to-teal-300/10 dark:from-green-400/20 dark:to-teal-300/10">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2"><BookCopy className="h-5 w-5"/> Featured Resource</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <h3 className="font-semibold">{featuredResourceData.title}</h3>
+                        <p className="text-sm text-muted-foreground mt-1">{featuredResourceData.description}</p>
+                    </CardContent>
+                    <CardFooter>
+                        <Button asChild variant="outline">
+                            <Link href="/resources">Resources</Link>
+                        </Button>
+                    </CardFooter>
+                </Card>
+                 <Card className="bg-card from-orange-400/20 to-pink-200/10 dark:from-orange-400/20 dark:to-pink-200/10">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2"><Calendar className="h-5 w-5"/> Upcoming Events</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        {upcomingEventsData.map((event, index) => (
+                            <div key={index}>
+                                <p className="font-semibold">{event.title}</p>
+                                <p className="text-sm text-muted-foreground">{event.date.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })} &bull; {event.location}</p>
+                            </div>
+                        ))}
+                    </CardContent>
+                     <CardFooter>
+                        <Button asChild variant="outline" size="sm">
+                            <Link href="/events">Events</Link>
+                        </Button>
+                    </CardFooter>
+                </Card>
+            </div>
         </div>
 
         {/* Top Contributors Widget */}
         <div className="lg:col-span-1">
-             <Card className="h-full bg-card">
+             <Card className="h-full bg-card from-purple-400/20 to-pink-300/10 dark:from-purple-400/20 dark:to-pink-300/10">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2"><Trophy className="h-5 w-5"/> Top Contributors</CardTitle>
                 </CardHeader>
