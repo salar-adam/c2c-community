@@ -13,7 +13,7 @@ body {
     --background: 220 40% 95%;
     --foreground: 220 10% 20%;
 
-    --card: 220 40% 100% / 0.6;
+    --card: 220 40% 100% / 0.4;
     --card-foreground: 220 10% 20%;
     
     --popover: 220 40% 100%;
@@ -60,7 +60,7 @@ body {
     --background: 220 15% 10%;
     --foreground: 220 15% 90%;
     
-    --card: 220 15% 15% / 0.6;
+    --card: 220 15% 15% / 0.4;
     --card-foreground: 220 15% 90%;
     
     --popover: 220 15% 5%;
@@ -115,5 +115,3 @@ body {
     -webkit-backdrop-filter: blur(16px) saturate(180%);
   }
 }
-
-    
