@@ -27,7 +27,7 @@ export default function LoginPage() {
 
     // Simulate login
     if (name === "salar" && password === "12345") {
-      router.push("/")
+      router.push("/identify-image")
     } else {
       setError("Invalid name or password. Please try again.")
     }
