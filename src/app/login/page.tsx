@@ -13,15 +13,24 @@ import { Label } from "@/components/ui/label"
 import { GeoNexusLogo } from "@/components/icons"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { useState } from "react"
 
 export default function LoginPage() {
   const router = useRouter()
+  const [name, setName] = useState("")
+  const [password, setPassword] = useState("")
+  const [error, setError] = useState("")
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    // In a real app, you'd have authentication logic here.
-    // For now, we'll just navigate to the dashboard.
-    router.push("/")
+    setError("")
+
+    // Simulate login
+    if (name === "salar" && password === "12345") {
+      router.push("/")
+    } else {
+      setError("Invalid name or password. Please try again.")
+    }
   }
 
   return (
@@ -33,7 +42,7 @@ export default function LoginPage() {
             </div>
           <CardTitle className="text-2xl">Welcome Back</CardTitle>
           <CardDescription>
-            Enter your name and password to login.
+            Enter your credentials to access your account.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -43,14 +52,23 @@ export default function LoginPage() {
               <Input
                 id="name"
                 type="text"
-                placeholder="Brodie"
+                placeholder="salar"
                 required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
               />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" required />
+              <Input 
+                id="password" 
+                type="password" 
+                required 
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
             </div>
+            {error && <p className="text-sm text-destructive">{error}</p>}
             <Button type="submit" className="w-full">
               Login
             </Button>
