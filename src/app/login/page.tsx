@@ -20,7 +20,8 @@ export default function LoginPage() {
             </div>
           <CardTitle className="text-2xl">Welcome Back</CardTitle>
           <CardDescription>
-            Enter your name and password to login
+            Want to join? You have been invited by an elite member. <br/>
+            Enter your name and password to login.
           </CardDescription>
         </CardHeader>
         <CardContent>
