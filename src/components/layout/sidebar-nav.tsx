@@ -102,10 +102,14 @@ export function SidebarNav() {
             </Link>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton tooltip="Settings">
-              <Settings />
-              <span>Settings</span>
-            </SidebarMenuButton>
+            <Link href="/settings" passHref>
+              <SidebarMenuButton asChild isActive={isActive('/settings')} tooltip="Settings">
+                <span>
+                  <Settings />
+                  <span>Settings</span>
+                </span>
+              </SidebarMenuButton>
+            </Link>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>

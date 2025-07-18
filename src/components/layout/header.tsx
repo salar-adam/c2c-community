@@ -46,7 +46,9 @@ export function Header() {
           <DropdownMenuItem asChild>
             <Link href="/profile">Profile</Link>
           </DropdownMenuItem>
-          <DropdownMenuItem>Settings</DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href="/settings">Settings</Link>
+          </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem>Logout</DropdownMenuItem>
         </DropdownMenuContent>
