@@ -8,8 +8,9 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Users, Calendar, Trophy, BookCopy, ThumbsUp, MessageSquare } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
+import { useState, useEffect } from "react"
 
-const recentActivity = [
+const recentActivityData = [
     {
       author: { name: "Alex Johnson", avatar: "https://placehold.co/100x100.png?text=AJ" },
       title: "Interesting sedimentary structures found in the Grand Canyon",
@@ -17,19 +18,12 @@ const recentActivity = [
       comments: 23,
       timestamp: new Date(),
     },
-    {
-      author: { name: "Maria Garcia", avatar: "https://placehold.co/100x100.png?text=MG" },
-      title: "Best software for 3D geological modeling?",
-      upvotes: 95,
-      comments: 42,
-      timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000), // 5 hours ago
-    },
 ]
 
-const upcomingEvents = [
+const upcomingEventsData = [
     {
       title: "Webinar: Advances in Seismic Imaging",
-      date: new Date(new Date().setDate(new Date().getDate() + 7)), // 1 week from now
+      date: new Date(new Date().setDate(new Date().getDate() + 7)),
       location: "Online",
     },
     {
@@ -39,14 +33,14 @@ const upcomingEvents = [
     }
 ]
 
-const topContributors = [
+const topContributorsData = [
     { rank: 1, name: "Salar", avatar: "https://placehold.co/100x100.png", xp: 15230 },
     { rank: 2, name: "Dr. Evelyn Reed", avatar: "https://placehold.co/100x100.png?text=ER", xp: 14890 },
     { rank: 3, name: "Chen Wang", avatar: "https://placehold.co/100x100.png?text=CW", xp: 14500 },
     { rank: 4, name: "Alex Johnson", avatar: "https://placehold.co/100x100.png?text=AJ", xp: 12100 },
 ]
 
-const featuredResource = {
+const featuredResourceData = {
     title: "Seismic Stratigraphy of the North Sea",
     description: "A comprehensive analysis of seismic data and stratigraphic sequences in the Viking Graben.",
     type: "Research Paper",
@@ -54,6 +48,12 @@ const featuredResource = {
 
 
 export default function DashboardPage() {
+  const [isClient, setIsClient] = useState(false)
+
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
+
   return (
     <div className="space-y-6">
       <div>
@@ -71,7 +71,7 @@ export default function DashboardPage() {
                     <CardTitle className="flex items-center gap-2"><Users className="h-5 w-5"/> Community</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    {recentActivity.slice(0, 1).map((post, index) => (
+                    {recentActivityData.map((post, index) => (
                         <div key={index} className="flex items-start gap-4 p-3 border rounded-lg hover:bg-secondary/50 transition-colors">
                            <Avatar>
                                 <AvatarImage src={post.author.avatar} alt={post.author.name} data-ai-hint="person face"/>
@@ -80,7 +80,7 @@ export default function DashboardPage() {
                            <div className="flex-1">
                                 <h3 className="font-semibold leading-tight">{post.title}</h3>
                                 <div className="text-sm text-muted-foreground mt-1">
-                                    Posted by {post.author.name} &bull; {formatDistanceToNow(post.timestamp, { addSuffix: true })}
+                                    Posted by {post.author.name} &bull; {isClient ? formatDistanceToNow(post.timestamp, { addSuffix: true }) : '...'}
                                 </div>
                                 <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
                                     <div className="flex items-center gap-1">
@@ -111,9 +111,9 @@ export default function DashboardPage() {
                     <CardTitle className="flex items-center gap-2"><BookCopy className="h-5 w-5"/> Featured Resource</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <h3 className="font-semibold">{featuredResource.title}</h3>
-                    <p className="text-sm text-muted-foreground mt-1">{featuredResource.description}</p>
-                    <Badge variant="secondary" className="mt-3">{featuredResource.type}</Badge>
+                    <h3 className="font-semibold">{featuredResourceData.title}</h3>
+                    <p className="text-sm text-muted-foreground mt-1">{featuredResourceData.description}</p>
+                    <Badge variant="secondary" className="mt-3">{featuredResourceData.type}</Badge>
                 </CardContent>
                 <CardFooter>
                     <Button asChild variant="outline">
@@ -130,7 +130,7 @@ export default function DashboardPage() {
                     <CardTitle className="flex items-center gap-2"><Trophy className="h-5 w-5"/> Top Contributors</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    {topContributors.map((user) => (
+                    {topContributorsData.map((user) => (
                          <div key={user.rank} className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
                                 <span className="font-bold w-4 text-muted-foreground">{user.rank}</span>
@@ -159,7 +159,7 @@ export default function DashboardPage() {
                     <CardTitle className="flex items-center gap-2"><Calendar className="h-5 w-5"/> Upcoming Events</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    {upcomingEvents.map((event, index) => (
+                    {upcomingEventsData.map((event, index) => (
                         <div key={index}>
                             <p className="font-semibold">{event.title}</p>
                             <p className="text-sm text-muted-foreground">{event.date.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })} &bull; {event.location}</p>
