@@ -11,6 +11,7 @@ import {
   Briefcase,
   User,
   Settings,
+  FlaskConical,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
@@ -34,6 +35,7 @@ const mainNav = [
   { href: "/leaderboard", label: "Leaderboard", icon: Trophy },
   { href: "/events", label: "Events", icon: Calendar },
   { href: "/jobs", label: "Jobs", icon: Briefcase },
+  { href: "/geomyths", label: "GeoMyth Busters", icon: FlaskConical },
 ];
 
 const aiToolsNav = [
