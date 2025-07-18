@@ -49,6 +49,20 @@ export async function submitEliteInvite(formData: FormData) {
   }
 }
 
+export async function addRockSample(data: { name: string; type: string; locationFound: string; image: string; }) {
+  try {
+    await addDoc(collection(db, 'rock-vault-samples'), {
+      ...data,
+      timestamp: Timestamp.now(),
+    });
+    revalidatePath('/rock-vault');
+    return { success: true, message: 'Rock sample added successfully.' };
+  } catch (error) {
+    console.error('Error adding rock sample: ', error);
+    return { success: false, message: 'An error occurred while adding the sample.' };
+  }
+}
+
 
 export async function seedCommunityPosts() {
   const postsCollection = collection(db, 'community-posts');
