@@ -13,24 +13,44 @@ import { Label } from "@/components/ui/label"
 import { GeoNexusLogo } from "@/components/icons"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { useState, useTransition } from "react"
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { app } from "@/lib/firebase"
+import { Loader2 } from "lucide-react"
+import { useToast } from "@/hooks/use-toast"
+
+const auth = getAuth(app);
 
 export default function LoginPage() {
   const router = useRouter()
-  const [name, setName] = useState("")
+  const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
+  const [isPending, startTransition] = useTransition()
+  const { toast } = useToast()
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     setError("")
 
-    // Simulate login
-    if (name === "salar" && password === "12345") {
-      router.push("/dashboard")
-    } else {
-      setError("Invalid name or password. Please try again.")
-    }
+    startTransition(async () => {
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+            router.push("/dashboard");
+        } catch (err: any) {
+            console.error("Firebase Auth Error:", err.code, err.message);
+            if (err.code === 'auth/invalid-credential' || err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
+                setError("Invalid email or password. Please try again.");
+            } else {
+                setError("An unexpected error occurred. Please try again later.");
+                toast({
+                    variant: "destructive",
+                    title: "Login Failed",
+                    description: err.message
+                });
+            }
+        }
+    });
   }
 
   return (
@@ -48,14 +68,15 @@ export default function LoginPage() {
         <CardContent>
           <form onSubmit={handleSubmit} className="grid gap-4">
             <div className="grid gap-2">
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="email">Email</Label>
               <Input
-                id="name"
-                type="text"
-                placeholder="salar"
+                id="email"
+                type="email"
+                placeholder="m@example.com"
                 required
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email"
               />
             </div>
             <div className="grid gap-2">
@@ -66,10 +87,12 @@ export default function LoginPage() {
                 required 
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                autoComplete="current-password"
               />
             </div>
-            {error && <p className="text-sm text-destructive">{error}</p>}
-            <Button type="submit" className="w-full">
+            {error && <p className="text-sm text-destructive text-center">{error}</p>}
+            <Button type="submit" className="w-full" disabled={isPending}>
+              {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Login
             </Button>
           </form>
