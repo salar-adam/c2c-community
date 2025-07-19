@@ -10,20 +10,14 @@ if (!admin.apps.length) {
         credential: admin.credential.cert(serviceAccount),
       });
     } catch (e) {
-      console.error('Failed to parse FIREBASE_SERVICE_ACCOUNT:', e);
+      console.error('Failed to parse FIREBASE_SERVICE_ACCOUNT. Firebase Admin SDK not initialized.', e);
     }
   } else {
-    console.log('FIREBASE_SERVICE_ACCOUNT environment variable not found. Firebase Admin SDK not initialized.');
+    // This will use Application Default Credentials if they are available.
+    admin.initializeApp();
   }
 }
 
-let adminDb: admin.firestore.Firestore;
-if (admin.apps.length > 0) {
-  adminDb = admin.firestore();
-} else {
-  // Provide a dummy object if initialization fails to prevent crashes on import.
-  // Actions will fail gracefully if the SDK is not initialized.
-  adminDb = {} as admin.firestore.Firestore;
-}
+const adminDb = admin.firestore();
 
 export { adminDb };
