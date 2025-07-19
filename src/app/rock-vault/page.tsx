@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, ChangeEvent, FormEvent } from "react"
+import { useState, useEffect, ChangeEvent, FormEvent, useTransition } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -58,7 +58,7 @@ export default function RockVaultPage() {
             </p>
             </div>
         </div>
-        <AddSampleDialog open={dialogOpen} onOpenChange={setDialogOpen} onSampleAdded={() => {}} />
+        <AddSampleDialog open={dialogOpen} onOpenChange={setDialogOpen} />
       </div>
       
       {loading ? (
@@ -99,13 +99,13 @@ export default function RockVaultPage() {
   )
 }
 
-function AddSampleDialog({ open, onOpenChange, onSampleAdded }: { open: boolean, onOpenChange: (open: boolean) => void, onSampleAdded: () => void }) {
+function AddSampleDialog({ open, onOpenChange }: { open: boolean, onOpenChange: (open: boolean) => void }) {
   const [name, setName] = useState("");
   const [type, setType] = useState("");
   const [locationFound, setLocationFound] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitting, startTransition] = useTransition();
   const { toast } = useToast();
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -128,35 +128,32 @@ function AddSampleDialog({ open, onOpenChange, onSampleAdded }: { open: boolean,
     setImagePreview(null);
   }
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!name || !type || !locationFound || !imageFile) {
         toast({ variant: "destructive", title: "Missing fields", description: "Please fill out all fields and upload an image." });
         return;
     }
 
-    setIsSubmitting(true);
-    
-    const reader = new FileReader();
-    reader.readAsDataURL(imageFile);
-    reader.onload = async () => {
-        const image = reader.result as string;
-        const result = await addRockSample({ name, type, locationFound, image });
-        
-        if (result.success) {
-            toast({ title: "Success", description: result.message });
-            onSampleAdded();
-            resetForm();
-            onOpenChange(false);
-        } else {
-            toast({ variant: "destructive", title: "Error", description: result.message });
+    startTransition(() => {
+        const reader = new FileReader();
+        reader.readAsDataURL(imageFile);
+        reader.onload = async () => {
+            const image = reader.result as string;
+            const result = await addRockSample({ name, type, locationFound, image });
+            
+            if (result.success) {
+                toast({ title: "Success", description: result.message });
+                resetForm();
+                onOpenChange(false);
+            } else {
+                toast({ variant: "destructive", title: "Error", description: result.message });
+            }
+        };
+        reader.onerror = () => {
+            toast({ variant: "destructive", title: "Error", description: "Failed to process image file."});
         }
-        setIsSubmitting(false);
-    };
-    reader.onerror = () => {
-        toast({ variant: "destructive", title: "Error", description: "Failed to process image file."});
-        setIsSubmitting(false);
-    }
+    });
   };
 
   return (
@@ -193,11 +190,11 @@ function AddSampleDialog({ open, onOpenChange, onSampleAdded }: { open: boolean,
           </div>
           <div className="space-y-2">
             <Label htmlFor="rock-name">Rock Name</Label>
-            <Input id="rock-name" value={name} onChange={e => setName(e.target.value)} placeholder="e.g., Obsidian" />
+            <Input id="rock-name" value={name} onChange={e => setName(e.target.value)} placeholder="e.g., Obsidian" required />
           </div>
           <div className="space-y-2">
             <Label htmlFor="rock-type">Rock Type</Label>
-            <Select onValueChange={setType} value={type}>
+            <Select onValueChange={setType} value={type} required>
               <SelectTrigger id="rock-type">
                 <SelectValue placeholder="Select a rock type" />
               </SelectTrigger>
@@ -210,7 +207,7 @@ function AddSampleDialog({ open, onOpenChange, onSampleAdded }: { open: boolean,
           </div>
           <div className="space-y-2">
             <Label htmlFor="location">Location Found</Label>
-            <Input id="location" value={locationFound} onChange={e => setLocationFound(e.target.value)} placeholder="e.g., Cascade Range, USA" />
+            <Input id="location" value={locationFound} onChange={e => setLocationFound(e.target.value)} placeholder="e.g., Cascade Range, USA" required />
           </div>
           <Button type="submit" className="w-full" disabled={isSubmitting}>
             {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <PlusCircle className="mr-2 h-4 w-4" />}

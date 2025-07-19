@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useEffect, FormEvent, useTransition } from "react"
+import { useState, useRef, useEffect, useTransition } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { db } from "@/lib/firebase"
-import { collection, getDocs, Timestamp, query, orderBy, onSnapshot } from "firebase/firestore"
+import { collection, Timestamp, query, orderBy, onSnapshot } from "firebase/firestore"
 
 const channels = [
     { name: "General Discussion", color: "bg-blue-500" },
@@ -80,13 +80,13 @@ export default function CommunityPage() {
     if (result.success) {
         toast({
             title: "Success",
-            description: "Sample posts added successfully.",
+            description: result.message,
         });
-    } else {
+    } else if (result.message) {
         toast({
             variant: "destructive",
             title: "Error",
-            description: result.message || "An unexpected error occurred.",
+            description: result.message,
         });
     }
   };

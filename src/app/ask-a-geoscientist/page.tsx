@@ -78,7 +78,7 @@ export default function AskAGeoscientistPage() {
         title: "Success",
         description: result.message,
       });
-    } else {
+    } else if (result.message) { // Only show toast if there's a message
       toast({
         variant: "destructive",
         title: "Error",

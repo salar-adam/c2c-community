@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { FileText, Video, Database, Search, ArrowRight, Loader2, DatabaseZap } from "lucide-react"
 import { db } from "@/lib/firebase"
-import { collection, getDocs } from "firebase/firestore"
+import { collection, onSnapshot, query, orderBy, Timestamp } from "firebase/firestore"
 import { seedResources } from "@/app/actions"
 import { useToast } from "@/hooks/use-toast"
 
@@ -36,30 +36,26 @@ export default function ResourcesPage() {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
-  const fetchResources = async () => {
-    setLoading(true);
-    try {
-      const querySnapshot = await getDocs(collection(db, "resources"));
-      const resourcesData = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      } as Resource));
-      setResources(resourcesData);
-    } catch (error) {
-      console.error("Error fetching resources: ", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to fetch resources.",
-      })
-    } finally {
-      setLoading(false);
-    }
-  }
-
   useEffect(() => {
-    fetchResources();
-  }, []);
+    const q = query(collection(db, "resources"), orderBy("title"));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        const resourcesData = querySnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        } as Resource));
+        setResources(resourcesData);
+        setLoading(false);
+    }, (error) => {
+        console.error("Error fetching resources: ", error);
+        toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Failed to fetch resources.",
+        })
+        setLoading(false);
+    });
+    return () => unsubscribe();
+  }, [toast]);
 
   const handleSeed = async () => {
     const result = await seedResources();
@@ -68,8 +64,7 @@ export default function ResourcesPage() {
         title: "Success",
         description: result.message,
       });
-      fetchResources(); // Refresh the list
-    } else {
+    } else if (result.message) {
       toast({
         variant: "destructive",
         title: "Error",
