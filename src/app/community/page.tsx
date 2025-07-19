@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef, useActionState } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -9,8 +9,13 @@ import { MessageSquare, PlusCircle, ThumbsUp, Loader2, Database } from "lucide-r
 import { db } from "@/lib/firebase"
 import { collection, getDocs, Timestamp } from "firebase/firestore"
 import { formatDistanceToNow } from "date-fns"
-import { seedCommunityPosts } from "@/app/actions"
+import { seedCommunityPosts, createCommunityPost } from "@/app/actions"
 import { useToast } from "@/hooks/use-toast"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 const channels = [
     { name: "General Discussion", color: "bg-blue-500" },
@@ -31,11 +36,13 @@ interface Post {
     upvotes: number;
     comments: number;
     timestamp: Date;
+    content?: string;
 }
 
 export default function CommunityPage() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const { toast } = useToast()
 
   const fetchPosts = async () => {
@@ -52,6 +59,7 @@ export default function CommunityPage() {
                 upvotes: data.upvotes,
                 comments: data.comments,
                 timestamp: (data.timestamp as Timestamp).toDate(),
+                content: data.content,
             };
         });
         // Sort by most recent
@@ -90,7 +98,6 @@ export default function CommunityPage() {
     }
   };
 
-
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -105,10 +112,7 @@ export default function CommunityPage() {
                 <Database className="mr-2 h-4 w-4" />
                 Seed Posts
             </Button>
-            <Button disabled>
-                <PlusCircle className="mr-2 h-4 w-4" />
-                Create Post
-            </Button>
+            <CreatePostDialog open={dialogOpen} onOpenChange={setDialogOpen} onPostCreated={fetchPosts}/>
         </div>
       </div>
       
@@ -137,7 +141,8 @@ export default function CommunityPage() {
                                </Avatar>
                                <div className="flex-1">
                                     <h3 className="font-semibold text-lg leading-tight">{post.title}</h3>
-                                    <div className="text-sm text-muted-foreground mt-1">
+                                    <p className="text-sm text-muted-foreground mt-2">{post.content}</p>
+                                    <div className="text-sm text-muted-foreground mt-2">
                                         Posted by {post.author.name} &bull; {formatDistanceToNow(post.timestamp, { addSuffix: true })}
                                     </div>
                                     <div className="flex items-center gap-4 mt-2 text-sm">
@@ -177,4 +182,69 @@ export default function CommunityPage() {
 
     </div>
   )
+}
+
+function CreatePostDialog({ open, onOpenChange, onPostCreated }: { open: boolean, onOpenChange: (open: boolean) => void, onPostCreated: () => void }) {
+    const { toast } = useToast();
+    const formRef = useRef<HTMLFormElement>(null);
+    
+    async function handleAction(prevState: any, formData: FormData) {
+        const result = await createCommunityPost(formData);
+        if (result.success) {
+            toast({ title: "Success", description: result.message });
+            onOpenChange(false);
+            onPostCreated();
+        } else {
+            toast({ variant: "destructive", title: "Error", description: result.message });
+        }
+        return result;
+    }
+
+    const [state, formAction] = useActionState(handleAction, { success: false, message: ""});
+
+    return (
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogTrigger asChild>
+                <Button>
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Create Post
+                </Button>
+            </DialogTrigger>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Create a New Post</DialogTitle>
+                    <DialogDescription>
+                        Share your thoughts, questions, or findings with the community.
+                    </DialogDescription>
+                </DialogHeader>
+                <form action={formAction} ref={formRef} className="space-y-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="title">Title</Label>
+                        <Input id="title" name="title" placeholder="Enter a descriptive title" required />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="category">Category</Label>
+                        <Select name="category" required>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select a category" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {channels.map(channel => (
+                                    <SelectItem key={channel.name} value={channel.name}>{channel.name}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="content">Content</Label>
+                        <Textarea id="content" name="content" placeholder="Write your post here..." rows={6} required />
+                    </div>
+                    <DialogFooter>
+                        <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+                        <Button type="submit">Submit Post</Button>
+                    </DialogFooter>
+                </form>
+            </DialogContent>
+        </Dialog>
+    );
 }

@@ -63,6 +63,36 @@ export async function addRockSample(data: { name: string; type: string; location
   }
 }
 
+export async function createCommunityPost(formData: FormData) {
+  const rawFormData = {
+    title: formData.get('title') as string,
+    content: formData.get('content') as string,
+    category: formData.get('category') as string,
+  };
+
+  if (!rawFormData.title || !rawFormData.content || !rawFormData.category) {
+    return { success: false, message: 'Title, content, and category are required.' };
+  }
+
+  try {
+    const newPost = {
+      title: rawFormData.title,
+      content: rawFormData.content,
+      category: rawFormData.category,
+      author: { name: "Salar", avatar: "https://placehold.co/100x100.png" },
+      upvotes: 0,
+      comments: 0,
+      timestamp: Timestamp.now(),
+    };
+    await addDoc(collection(db, 'community-posts'), newPost);
+    revalidatePath('/community');
+    return { success: true, message: 'Post created successfully.' };
+  } catch (error) {
+    console.error('Error creating post: ', error);
+    return { success: false, message: 'An error occurred while creating the post.' };
+  }
+}
+
 
 export async function seedCommunityPosts() {
   const postsCollection = collection(db, 'community-posts');
@@ -84,6 +114,7 @@ export async function seedCommunityPosts() {
         upvotes: 128,
         comments: 23,
         timestamp: Timestamp.now(),
+        content: "During a recent trip, I observed some fascinating cross-bedding in the Coconino Sandstone. The scale was massive, indicating a vast ancient desert environment. Has anyone else seen similar structures elsewhere?"
       },
       {
         author: { name: "Maria Garcia", avatar: "https://placehold.co/100x100.png?text=MG" },
@@ -92,6 +123,7 @@ export async function seedCommunityPosts() {
         upvotes: 95,
         comments: 42,
         timestamp: Timestamp.fromDate(new Date(Date.now() - 5 * 60 * 60 * 1000)), // 5 hours ago
+        content: "Our team is evaluating new 3D modeling software for subsurface interpretation. We're currently looking at Petrel and Leapfrog. Does anyone have strong opinions or experience with these, or perhaps recommend an alternative?"
       },
       {
         author: { name: "Salar", avatar: "https://placehold.co/100x100.png" },
@@ -100,6 +132,7 @@ export async function seedCommunityPosts() {
         upvotes: 210,
         comments: 78,
         timestamp: Timestamp.fromDate(new Date(Date.now() - 24 * 60 * 60 * 1000)), // 1 day ago
+        content: "I've been mentoring a few recent grads and the job market can be tough. My top tips are: 1) Get proficient with GIS software (like QGIS), 2) Network relentlessly on LinkedIn, and 3) Tailor your resume for EVERY single application. What other advice would you give?"
       },
       {
         author: { name: "Chen Wang", avatar: "https://placehold.co/100x100.png?text=CW" },
@@ -108,6 +141,7 @@ export async function seedCommunityPosts() {
         upvotes: 45,
         comments: 112,
         timestamp: Timestamp.fromDate(new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)), // 2 days ago
+        content: "From a planetary geology perspective, the 'clearing its orbital neighborhood' requirement is problematic. Pluto has a complex geology with mountains, glaciers, and a potential subsurface ocean. Isn't that enough to be considered a planet? Let's discuss."
       },
     ];
 
