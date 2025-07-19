@@ -18,5 +18,7 @@ if (!admin.apps.length) {
   }
 }
 
-export const adminDb = getFirestore();
-export const adminAuth = getAuth();
+const adminDb = getFirestore();
+const adminAuth = getAuth();
+
+export { adminDb, adminAuth };
