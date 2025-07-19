@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -16,7 +16,6 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { db } from "@/lib/firebase"
 import { collection, getDocs, Timestamp, query, orderBy } from "firebase/firestore"
-import type { FormEvent } from "react"
 
 const channels = [
     { name: "General Discussion", color: "bg-blue-500" },
@@ -40,43 +39,44 @@ interface Post {
     content?: string;
 }
 
-// Fetch posts on the server
-async function getPosts(): Promise<Post[]> {
-    const querySnapshot = await getDocs(query(collection(db, "community-posts"), orderBy("timestamp", "desc")));
-    const postsData = querySnapshot.docs.map(doc => {
-        const data = doc.data();
-        return {
-            id: doc.id,
-            author: data.author,
-            title: data.title,
-            category: data.category,
-            upvotes: data.upvotes,
-            comments: data.comments,
-            timestamp: (data.timestamp as Timestamp).toDate(),
-            content: data.content,
-        };
-    });
-    return postsData;
-}
-
-
 export default function CommunityPage() {
-    // We will handle data fetching on the server and pass it as a prop in a real scenario
-    // For this interactive environment, we will fetch on the client.
     const [posts, setPosts] = useState<Post[]>([]);
     const [loading, setLoading] = useState(true);
     const { toast } = useToast()
 
     const fetchPosts = async () => {
         setLoading(true);
-        const postsData = await getPosts();
-        setPosts(postsData);
-        setLoading(false);
+        try {
+            const querySnapshot = await getDocs(query(collection(db, "community-posts"), orderBy("timestamp", "desc")));
+            const postsData = querySnapshot.docs.map(doc => {
+                const data = doc.data();
+                return {
+                    id: doc.id,
+                    author: data.author,
+                    title: data.title,
+                    category: data.category,
+                    upvotes: data.upvotes,
+                    comments: data.comments,
+                    timestamp: (data.timestamp as Timestamp).toDate(),
+                    content: data.content,
+                };
+            });
+            setPosts(postsData);
+        } catch (error) {
+            console.error("Error fetching posts: ", error);
+            toast({
+                variant: "destructive",
+                title: "Error",
+                description: "Failed to fetch posts.",
+            })
+        } finally {
+            setLoading(false);
+        }
     }
   
-    useState(() => {
+    useEffect(() => {
       fetchPosts();
-    });
+    }, []);
     
   const handleSeed = async () => {
     await seedCommunityPosts();
@@ -181,13 +181,17 @@ function CreatePostDialog({ onPostCreated }: { onPostCreated: () => void }) {
     const formRef = useRef<HTMLFormElement>(null);
     const { toast } = useToast();
     
-    const handleFormAction = async (formData: FormData) => {
+    const handleFormAction = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
         setIsSubmitting(true);
+        
+        const formData = new FormData(e.currentTarget);
         const result = await createCommunityPost(formData);
+
         if (result.success) {
             toast({ title: "Success", description: result.message });
-            setOpen(false); // Close dialog
-            onPostCreated(); // Refresh posts list
+            setOpen(false);
+            onPostCreated(); 
         } else {
             toast({ variant: "destructive", title: "Error", description: result.message });
         }
@@ -211,7 +215,7 @@ function CreatePostDialog({ onPostCreated }: { onPostCreated: () => void }) {
                 </DialogHeader>
                 <form 
                     ref={formRef}
-                    action={handleFormAction}
+                    onSubmit={handleFormAction}
                     className="space-y-4"
                 >
                     <div className="space-y-2">
