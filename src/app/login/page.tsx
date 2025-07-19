@@ -23,8 +23,8 @@ const auth = getAuth(app);
 
 export default function LoginPage() {
   const router = useRouter()
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
+  const [email, setEmail] = useState("salar@geonexus.com")
+  const [password, setPassword] = useState("123456")
   const [error, setError] = useState("")
   const [isPending, startTransition] = useTransition()
   const { toast } = useToast()
