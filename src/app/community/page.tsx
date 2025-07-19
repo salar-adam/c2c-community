@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useEffect, FormEvent } from "react"
+import { useState, useRef, useEffect, FormEvent, useTransition } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { db } from "@/lib/firebase"
-import { collection, getDocs, Timestamp, query, orderBy } from "firebase/firestore"
+import { collection, getDocs, Timestamp, query, orderBy, onSnapshot } from "firebase/firestore"
 
 const channels = [
     { name: "General Discussion", color: "bg-blue-500" },
@@ -44,10 +44,9 @@ export default function CommunityPage() {
     const [loading, setLoading] = useState(true);
     const { toast } = useToast()
 
-    const fetchPosts = async () => {
-        setLoading(true);
-        try {
-            const querySnapshot = await getDocs(query(collection(db, "community-posts"), orderBy("timestamp", "desc")));
+    useEffect(() => {
+        const q = query(collection(db, "community-posts"), orderBy("timestamp", "desc"));
+        const unsubscribe = onSnapshot(q, (querySnapshot) => {
             const postsData = querySnapshot.docs.map(doc => {
                 const data = doc.data();
                 return {
@@ -62,25 +61,22 @@ export default function CommunityPage() {
                 };
             });
             setPosts(postsData);
-        } catch (error) {
-            console.error("Error fetching posts: ", error);
+            setLoading(false);
+        }, (error) => {
+            console.error("Error fetching posts in real-time: ", error);
             toast({
                 variant: "destructive",
                 title: "Error",
                 description: "Failed to fetch posts.",
             })
-        } finally {
             setLoading(false);
-        }
-    }
-  
-    useEffect(() => {
-      fetchPosts();
-    }, []);
+        });
+
+        return () => unsubscribe();
+    }, [toast]);
     
   const handleSeed = async () => {
     await seedCommunityPosts();
-    await fetchPosts();
     toast({
         title: "Success",
         description: "Sample posts added successfully.",
@@ -103,7 +99,7 @@ export default function CommunityPage() {
                     Seed Posts
                 </Button>
             </form>
-            <CreatePostDialog onPostCreated={fetchPosts} />
+            <CreatePostDialog />
         </div>
       </div>
       
@@ -175,34 +171,23 @@ export default function CommunityPage() {
   )
 }
 
-function CreatePostDialog({ onPostCreated }: { onPostCreated: () => void }) {
+function CreatePostDialog() {
     const [open, setOpen] = useState(false);
-    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isPending, startTransition] = useTransition();
     const formRef = useRef<HTMLFormElement>(null);
     const { toast } = useToast();
     
-    const handleFormAction = async (e: FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        setIsSubmitting(true);
-        
-        try {
-            const formData = new FormData(e.currentTarget);
+    const handleSubmit = (formData: FormData) => {
+        startTransition(async () => {
             const result = await createCommunityPost(formData);
-
-            if (result.success) {
+            if (result?.success) {
                 toast({ title: "Success", description: result.message });
                 formRef.current?.reset();
                 setOpen(false);
-                onPostCreated(); 
             } else {
-                toast({ variant: "destructive", title: "Error", description: result.message });
+                toast({ variant: "destructive", title: "Error", description: result?.message || "An unexpected error occurred." });
             }
-        } catch (error) {
-            console.error("Error in form action:", error);
-            toast({ variant: "destructive", title: "Error", description: "An unexpected error occurred." });
-        } finally {
-            setIsSubmitting(false);
-        }
+        });
     }
 
     return (
@@ -222,7 +207,7 @@ function CreatePostDialog({ onPostCreated }: { onPostCreated: () => void }) {
                 </DialogHeader>
                 <form 
                     ref={formRef}
-                    onSubmit={handleFormAction}
+                    action={handleSubmit}
                     className="space-y-4"
                 >
                     <div className="space-y-2">
@@ -248,8 +233,8 @@ function CreatePostDialog({ onPostCreated }: { onPostCreated: () => void }) {
                     </div>
                     <DialogFooter>
                         <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
-                        <Button type="submit" disabled={isSubmitting}>
-                            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        <Button type="submit" disabled={isPending}>
+                            {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             Submit Post
                         </Button>
                     </DialogFooter>
