@@ -6,12 +6,11 @@ import serviceAccount from '../../firebase-service-account-key.json';
 if (!globalThis.firebaseAdminApp) {
   try {
     globalThis.firebaseAdminApp = admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount),
+      credential: admin.credential.cert(serviceAccount as admin.ServiceAccount),
     });
   } catch (error) {
     // We might be in a hot-reload scenario where the app is already initialized.
     if (!/already exists/u.test((error as Error).message)) {
-      // eslint-disable-next-line no-console
       console.error('Firebase admin initialization error', error);
     }
   }
