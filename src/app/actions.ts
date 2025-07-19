@@ -1,11 +1,10 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { getFirestoreAdmin } from '@/lib/firebase-admin'
+import { adminDb } from '@/lib/firebase-admin'
 import { FieldValue } from 'firebase-admin/firestore'
 
 export async function submitJoinRequest(formData: FormData) {
-  const adminDb = getFirestoreAdmin();
   const rawFormData = {
     firstName: formData.get('first-name') as string,
     lastName: formData.get('last-name') as string,
@@ -32,7 +31,6 @@ export async function submitJoinRequest(formData: FormData) {
 }
 
 export async function submitEliteInvite(formData: FormData) {
-  const adminDb = getFirestoreAdmin();
   const rawFormData = {
     eliteMemberName: formData.get('elite-member-name') as string,
     invitationCode: formData.get('invitation-code') as string,
@@ -51,7 +49,6 @@ export async function submitEliteInvite(formData: FormData) {
 }
 
 export async function addRockSample(data: { name: string; type: string; locationFound: string; image: string; }) {
-  const adminDb = getFirestoreAdmin();
   try {
     await adminDb.collection('rock-vault-samples').add({
       ...data,
@@ -66,7 +63,6 @@ export async function addRockSample(data: { name: string; type: string; location
 }
 
 export async function createCommunityPost(formData: FormData) {
-  const adminDb = getFirestoreAdmin();
   const rawFormData = {
     title: formData.get('title') as string,
     content: formData.get('content') as string,
@@ -97,7 +93,6 @@ export async function createCommunityPost(formData: FormData) {
 }
 
 export async function addExpertQuestion(formData: FormData) {
-  const adminDb = getFirestoreAdmin();
   const rawFormData = {
     title: formData.get('title') as string,
   };
@@ -124,7 +119,6 @@ export async function addExpertQuestion(formData: FormData) {
 
 
 export async function seedCommunityPosts() {
-  const adminDb = getFirestoreAdmin();
   const postsCollection = adminDb.collection('community-posts');
 
   try {
@@ -190,7 +184,6 @@ export async function seedCommunityPosts() {
 }
 
 export async function seedResources() {
-  const adminDb = getFirestoreAdmin();
   const resourcesCollection = adminDb.collection('resources');
 
   try {
@@ -256,7 +249,6 @@ export async function seedResources() {
 }
 
 export async function seedExpertQuestions() {
-  const adminDb = getFirestoreAdmin();
   const questionsCollection = adminDb.collection('expert-questions');
 
   try {
