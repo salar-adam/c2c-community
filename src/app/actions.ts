@@ -122,6 +122,9 @@ export async function toggleUpvote(postId: string, userId: string) {
     if (!userId) {
         return { success: false, message: "User not authenticated." };
     }
+    if (!adminDb) {
+      return { success: false, message: "Server database not configured."}
+    }
 
     const postRef = adminDb.collection('community-posts').doc(postId);
     const transaction = adminDb.runTransaction(async (t) => {
@@ -164,6 +167,7 @@ export async function toggleUpvote(postId: string, userId: string) {
 
 
 export async function seedCommunityPosts() {
+  if (!adminDb) return { success: false, message: "Server database not configured."}
   const postsCollection = adminDb.collection('community-posts');
 
   try {
@@ -229,6 +233,7 @@ export async function seedCommunityPosts() {
 }
 
 export async function seedResources() {
+  if (!adminDb) return { success: false, message: "Server database not configured."}
   const resourcesCollection = adminDb.collection('resources');
 
   try {
@@ -294,6 +299,7 @@ export async function seedResources() {
 }
 
 export async function seedExpertQuestions() {
+  if (!adminDb) return { success: false, message: "Server database not configured."}
   const questionsCollection = adminDb.collection('expert-questions');
 
   try {
@@ -351,5 +357,3 @@ export async function seedExpertQuestions() {
     return { success: false, message: 'An error occurred while seeding questions.' };
   }
 }
-
-    

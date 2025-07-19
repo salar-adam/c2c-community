@@ -30,4 +30,17 @@ function initializeAdmin() {
 const adminApp = initializeAdmin();
 const adminDb = adminApp ? admin.firestore() : null;
 
-export { adminDb };
+// To avoid breaking the app if adminDb is null, we create a proxy.
+// This allows the server to start but will throw a clear error if any action tries to use the db.
+const dbProxy = adminDb ? adminDb : new Proxy({}, {
+  get(target, prop) {
+    if (adminDb) {
+      // @ts-ignore
+      return adminDb[prop];
+    }
+    throw new Error("Firebase Admin SDK is not initialized. Check your FIREBASE_SERVICE_ACCOUNT environment variable.");
+  }
+}) as admin.firestore.Firestore;
+
+
+export { dbProxy as adminDb };
