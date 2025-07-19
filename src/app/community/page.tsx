@@ -135,7 +135,7 @@ export default function CommunityPage() {
                     <h3 className="font-semibold text-lg leading-tight">{post.title}</h3>
                     <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{post.content}</p>
                     <div className="text-sm text-muted-foreground mt-2">
-                        Posted by {post.author?.name || "Unknown Author"} &bull; {formatDistanceToNow(post.timestamp, { addSuffix: true })}
+                        Posted by {post.author?.name || "Unknown Author"} &bull; {post.timestamp ? formatDistanceToNow(post.timestamp, { addSuffix: true }) : '...'}
                     </div>
                     <div className="flex items-center gap-4 mt-2 text-sm">
                         <Badge variant="secondary">{post.category}</Badge>
@@ -225,6 +225,7 @@ export default function CommunityPage() {
 function CreatePostDialog() {
     const [open, setOpen] = useState(false);
     const [isPending, startTransition] = useTransition();
+    const { toast } = useToast();
     
     const handleSubmit = async (formData: FormData) => {
         startTransition(async () => {
@@ -290,5 +291,3 @@ function CreatePostDialog() {
         </Dialog>
     );
 }
-
-const { toast } = useToast()
