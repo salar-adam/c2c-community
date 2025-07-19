@@ -10,9 +10,10 @@ if (!serviceAccountString) {
 
 let serviceAccount;
 try {
-    serviceAccount = JSON.parse(serviceAccountString);
+    const decodedKey = Buffer.from(serviceAccountString, 'base64').toString('utf-8');
+    serviceAccount = JSON.parse(decodedKey);
 } catch (error) {
-    throw new Error('Failed to parse Firebase service account key. Ensure it is a valid JSON string.');
+    throw new Error('Failed to parse Firebase service account key. Ensure it is a valid, Base64-encoded JSON string.');
 }
 
 
