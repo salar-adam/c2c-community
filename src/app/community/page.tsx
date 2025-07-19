@@ -1,13 +1,11 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useRef } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { MessageSquare, PlusCircle, ThumbsUp, Loader2, Database } from "lucide-react"
-import { db } from "@/lib/firebase"
-import { collection, getDocs, Timestamp } from "firebase/firestore"
 import { formatDistanceToNow } from "date-fns"
 import { seedCommunityPosts, createCommunityPost } from "@/app/actions"
 import { useToast } from "@/hooks/use-toast"
@@ -16,6 +14,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { db } from "@/lib/firebase"
+import { collection, getDocs, Timestamp, query, orderBy } from "firebase/firestore"
+import type { FormEvent } from "react"
 
 const channels = [
     { name: "General Discussion", color: "bg-blue-500" },
@@ -39,48 +40,44 @@ interface Post {
     content?: string;
 }
 
-export default function CommunityPage() {
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const { toast } = useToast()
+// Fetch posts on the server
+async function getPosts(): Promise<Post[]> {
+    const querySnapshot = await getDocs(query(collection(db, "community-posts"), orderBy("timestamp", "desc")));
+    const postsData = querySnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+            id: doc.id,
+            author: data.author,
+            title: data.title,
+            category: data.category,
+            upvotes: data.upvotes,
+            comments: data.comments,
+            timestamp: (data.timestamp as Timestamp).toDate(),
+            content: data.content,
+        };
+    });
+    return postsData;
+}
 
-  const fetchPosts = async () => {
-    setLoading(true);
-    try {
-        const querySnapshot = await getDocs(collection(db, "community-posts"));
-        const postsData = querySnapshot.docs.map(doc => {
-            const data = doc.data();
-            return {
-                id: doc.id,
-                author: data.author,
-                title: data.title,
-                category: data.category,
-                upvotes: data.upvotes,
-                comments: data.comments,
-                timestamp: (data.timestamp as Timestamp).toDate(),
-                content: data.content,
-            };
-        });
-        // Sort by most recent
-        postsData.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+
+export default function CommunityPage() {
+    // We will handle data fetching on the server and pass it as a prop in a real scenario
+    // For this interactive environment, we will fetch on the client.
+    const [posts, setPosts] = useState<Post[]>([]);
+    const [loading, setLoading] = useState(true);
+    const { toast } = useToast()
+
+    const fetchPosts = async () => {
+        setLoading(true);
+        const postsData = await getPosts();
         setPosts(postsData);
-    } catch (error) {
-        console.error("Error fetching posts: ", error);
-        toast({
-            variant: "destructive",
-            title: "Error",
-            description: "Failed to fetch community posts.",
-        })
-    } finally {
         setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    fetchPosts();
-  }, []);
   
+    useState(() => {
+      fetchPosts();
+    });
+    
   const handleSeed = async () => {
     await seedCommunityPosts();
     await fetchPosts();
@@ -106,7 +103,7 @@ export default function CommunityPage() {
                     Seed Posts
                 </Button>
             </form>
-            <CreatePostDialog open={dialogOpen} onOpenChange={setDialogOpen} onPostCreated={fetchPosts}/>
+            <CreatePostDialog onPostCreated={fetchPosts} />
         </div>
       </div>
       
@@ -178,12 +175,27 @@ export default function CommunityPage() {
   )
 }
 
-function CreatePostDialog({ open, onOpenChange, onPostCreated }: { open: boolean, onOpenChange: (open: boolean) => void, onPostCreated: () => void }) {
-    const { toast } = useToast();
+function CreatePostDialog({ onPostCreated }: { onPostCreated: () => void }) {
+    const [open, setOpen] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const formRef = useRef<HTMLFormElement>(null);
+    const { toast } = useToast();
     
+    const handleFormAction = async (formData: FormData) => {
+        setIsSubmitting(true);
+        const result = await createCommunityPost(formData);
+        if (result.success) {
+            toast({ title: "Success", description: result.message });
+            setOpen(false); // Close dialog
+            onPostCreated(); // Refresh posts list
+        } else {
+            toast({ variant: "destructive", title: "Error", description: result.message });
+        }
+        setIsSubmitting(false);
+    }
+
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
+        <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
                 <Button>
                     <PlusCircle className="mr-2 h-4 w-4" />
@@ -199,17 +211,7 @@ function CreatePostDialog({ open, onOpenChange, onPostCreated }: { open: boolean
                 </DialogHeader>
                 <form 
                     ref={formRef}
-                    action={async (formData) => {
-                        const result = await createCommunityPost(formData);
-                        if (result.success) {
-                            toast({ title: "Success", description: result.message });
-                            onOpenChange(false);
-                            onPostCreated();
-                            formRef.current?.reset();
-                        } else {
-                            toast({ variant: "destructive", title: "Error", description: result.message });
-                        }
-                    }}
+                    action={handleFormAction}
                     className="space-y-4"
                 >
                     <div className="space-y-2">
@@ -234,8 +236,11 @@ function CreatePostDialog({ open, onOpenChange, onPostCreated }: { open: boolean
                         <Textarea id="content" name="content" placeholder="Write your post here..." rows={6} required />
                     </div>
                     <DialogFooter>
-                        <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
-                        <Button type="submit">Submit Post</Button>
+                        <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
+                        <Button type="submit" disabled={isSubmitting}>
+                            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            Submit Post
+                        </Button>
                     </DialogFooter>
                 </form>
             </DialogContent>
