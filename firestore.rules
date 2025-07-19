@@ -3,35 +3,31 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // Community posts can be read by anyone, but not written to from the client.
+    // Allow public read access to collections needed for the app to display data.
+    // Writes are disallowed from the client-side for security.
     match /community-posts/{postId} {
       allow read: if true;
-      allow write: if false; // Writes should happen through server actions.
+      allow write: if false;
     }
 
-    // Resources can be read by anyone.
-    match /resources/{resourceId} {
-      allow read: if true;
-      allow write: if false; 
-    }
-    
-    // Expert questions can be read by anyone.
     match /expert-questions/{questionId} {
       allow read: if true;
       allow write: if false;
     }
 
-    // Rock vault samples are user-specific. 
-    // This is a placeholder rule. In a real app, you'd check user authentication.
-    // For now, allow reads but no client-side writes.
-    match /rock-vault-samples/{sampleId} {
-        allow read: if true;
-        allow write: if false;
+    match /resources/{resourceId} {
+      allow read: if true;
+      allow write: if false;
     }
 
-    // Join requests should be private and only handled by the server.
-    match /join-requests/{requestId} {
+    match /rock-vault-samples/{sampleId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Disallow reads/writes to other collections by default.
+    // Server-side admin actions will still have access.
+    match /{document=**} {
       allow read, write: if false;
     }
   }
