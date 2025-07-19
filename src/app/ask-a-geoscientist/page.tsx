@@ -1,15 +1,26 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef, useTransition } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
 import { CheckCircle, HelpCircle, PlusCircle, Loader2, DatabaseZap } from "lucide-react"
 import { db } from "@/lib/firebase"
-import { collection, getDocs, Timestamp, query, orderBy } from "firebase/firestore"
-import { seedExpertQuestions } from "@/app/actions"
+import { collection, onSnapshot, Timestamp, query, orderBy } from "firebase/firestore"
+import { seedExpertQuestions, addExpertQuestion } from "@/app/actions"
 import { useToast } from "@/hooks/use-toast"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 
 interface Question {
   id: string;
@@ -30,39 +41,35 @@ export default function AskAGeoscientistPage() {
   const [loading, setLoading] = useState(true)
   const { toast } = useToast()
 
-  const fetchQuestions = async () => {
-    setLoading(true)
-    try {
-      const q = query(collection(db, "expert-questions"), orderBy("timestamp", "desc"));
-      const querySnapshot = await getDocs(q);
-      const questionsData = querySnapshot.docs.map(doc => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          title: data.title,
-          author: data.author,
-          status: data.status,
-          expert: data.expert,
-          answerPreview: data.answerPreview,
-          timestamp: (data.timestamp as Timestamp).toDate(),
-        };
-      });
-      setQuestions(questionsData);
-    } catch (error) {
-      console.error("Error fetching questions: ", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to fetch questions.",
-      })
-    } finally {
-      setLoading(false);
-    }
-  }
-
   useEffect(() => {
-    fetchQuestions();
-  }, [])
+    const q = query(collection(db, "expert-questions"), orderBy("timestamp", "desc"));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        const questionsData = querySnapshot.docs.map(doc => {
+            const data = doc.data();
+            return {
+              id: doc.id,
+              title: data.title,
+              author: data.author,
+              status: data.status,
+              expert: data.expert,
+              answerPreview: data.answerPreview,
+              timestamp: (data.timestamp as Timestamp).toDate(),
+            };
+        });
+        setQuestions(questionsData);
+        setLoading(false);
+    }, (error) => {
+        console.error("Error fetching questions: ", error);
+        toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Failed to fetch questions.",
+        })
+        setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, [toast])
 
   const handleSeed = async () => {
     const result = await seedExpertQuestions()
@@ -71,7 +78,6 @@ export default function AskAGeoscientistPage() {
         title: "Success",
         description: result.message,
       });
-      fetchQuestions(); // Refresh list
     } else {
       toast({
         variant: "destructive",
@@ -95,10 +101,7 @@ export default function AskAGeoscientistPage() {
                 <DatabaseZap className="mr-2 h-4 w-4" />
                 Seed Questions
             </Button>
-            <Button disabled>
-                <PlusCircle className="mr-2 h-4 w-4" />
-                Ask a Question
-            </Button>
+            <AskQuestionDialog />
         </div>
       </div>
 
@@ -110,7 +113,7 @@ export default function AskAGeoscientistPage() {
         ) : questions.length === 0 ? (
           <div className="text-center text-muted-foreground py-12">
             <p>No questions have been asked yet.</p>
-            <p className="text-sm">Click "Seed Questions" to add some sample data.</p>
+            <p className="text-sm">Click "Seed Questions" to add some sample data or ask your own.</p>
           </div>
         ) : (
           questions.map((q) => (
@@ -152,4 +155,60 @@ export default function AskAGeoscientistPage() {
       </div>
     </div>
   )
+}
+
+function AskQuestionDialog() {
+    const [open, setOpen] = useState(false);
+    const [isPending, startTransition] = useTransition();
+    const formRef = useRef<HTMLFormElement>(null);
+    const { toast } = useToast();
+    
+    const handleSubmit = (formData: FormData) => {
+        startTransition(async () => {
+            const result = await addExpertQuestion(formData);
+            if (result?.success) {
+                toast({ title: "Success", description: result.message });
+                formRef.current?.reset();
+                setOpen(false);
+            } else {
+                toast({ variant: "destructive", title: "Error", description: result?.message || "An unexpected error occurred." });
+            }
+        });
+    }
+
+    return (
+        <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+                <Button>
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Ask a Question
+                </Button>
+            </DialogTrigger>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Ask a Question</DialogTitle>
+                    <DialogDescription>
+                        Submit your question to our panel of experts. They will get back to you as soon as possible.
+                    </DialogDescription>
+                </DialogHeader>
+                <form 
+                    ref={formRef}
+                    action={handleSubmit}
+                    className="space-y-4"
+                >
+                    <div className="space-y-2">
+                        <Label htmlFor="title">Your Question</Label>
+                        <Textarea id="title" name="title" placeholder="What would you like to know?" rows={4} required />
+                    </div>
+                    <DialogFooter>
+                        <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
+                        <Button type="submit" disabled={isPending}>
+                            {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            Submit Question
+                        </Button>
+                    </DialogFooter>
+                </form>
+            </DialogContent>
+        </Dialog>
+    );
 }

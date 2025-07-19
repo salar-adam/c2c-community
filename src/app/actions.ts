@@ -92,6 +92,31 @@ export async function createCommunityPost(formData: FormData) {
   }
 }
 
+export async function addExpertQuestion(formData: FormData) {
+  const rawFormData = {
+    title: formData.get('title') as string,
+  };
+
+  if (!rawFormData.title) {
+    return { success: false, message: 'Question title is required.' };
+  }
+
+  try {
+    const newQuestion = {
+      title: rawFormData.title,
+      author: "Salar", // In a real app, this would be the logged-in user
+      status: "Awaiting Answer",
+      timestamp: FieldValue.serverTimestamp(),
+    };
+    await adminDb.collection('expert-questions').add(newQuestion);
+    revalidatePath('/ask-a-geoscientist');
+    return { success: true, message: 'Your question has been submitted.' };
+  } catch (error) {
+    console.error('Error submitting question: ', error);
+    return { success: false, message: 'An error occurred while submitting your question.' };
+  }
+}
+
 
 export async function seedCommunityPosts() {
   const postsCollection = adminDb.collection('community-posts');
