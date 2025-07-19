@@ -1,11 +1,15 @@
-
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Allow public read access to collections needed for the app to display data.
-    // Writes are disallowed from the client-side for security.
+
+    // Allow public read access to most collections
     match /community-posts/{postId} {
+      allow read: if true;
+      allow write: if false; // Block client-side writes for now
+    }
+
+    match /resources/{resourceId} {
       allow read: if true;
       allow write: if false;
     }
@@ -15,20 +19,15 @@ service cloud.firestore {
       allow write: if false;
     }
 
-    match /resources/{resourceId} {
-      allow read: if true;
-      allow write: if false;
-    }
-
     match /rock-vault-samples/{sampleId} {
       allow read: if true;
       allow write: if false;
     }
 
-    // Disallow reads/writes to other collections by default.
-    // Server-side admin actions will still have access.
-    match /{document=**} {
-      allow read, write: if false;
+    // Allow writes only for specific actions like submitting a form
+    match /join-requests/{requestId} {
+      allow read: if false; // Nobody should be able to read these
+      allow create: if true; // Allow anyone to submit a join request
     }
   }
 }
