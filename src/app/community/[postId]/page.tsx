@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -205,6 +206,7 @@ export default function PostPage() {
                             ) : (
                                 comments.map(comment => (
                                     <div key={comment.id} className="border-t pt-4">
+
                                         <div className="flex items-start gap-3">
                                              <Avatar className="h-7 w-7">
                                                 {comment.author?.avatar ? (
@@ -233,8 +235,7 @@ export default function PostPage() {
                                         value={newComment}
                                         onChange={(e) => setNewComment(e.target.value)}
                                         disabled={isSubmittingComment}
-                                    >
-                                    </Textarea>
+                                    />
                                     <Button
                                         className="mt-2"
                                         onClick={handleCommentSubmit}
@@ -255,3 +256,4 @@ export default function PostPage() {
         </div>
     );
 }
+
