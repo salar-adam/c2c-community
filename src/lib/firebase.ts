@@ -5,7 +5,7 @@ import { getAuth } from "firebase/auth";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyC5YX4hFoPb0cQCnb8xXsk0xP0BY0Gbav8",
+  apiKey: "AIzaSyC5YX4hFoPb0cQCnb8xXsk0xP0BY0Gbav",
   authDomain: "geonexus-6np3x.firebaseapp.com",
   projectId: "geonexus-6np3x",
   storageBucket: "geonexus-6np3x.appspot.com",
