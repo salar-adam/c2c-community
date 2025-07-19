@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useRef, useEffect, useTransition } from "react"
@@ -5,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { MessageSquare, PlusCircle, ThumbsUp, Loader2, Database } from "lucide-react"
+import { MessageSquare, PlusCircle, ThumbsUp, Loader2, Database, User } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 import { seedCommunityPosts, createCommunityPost } from "@/app/actions"
 import { useToast } from "@/hooks/use-toast"
@@ -27,7 +28,7 @@ const channels = [
 
 interface Post {
     id: string;
-    author: {
+    author?: {
         name: string;
         avatar: string;
     };
@@ -57,7 +58,7 @@ export default function CommunityPage() {
                     category: data.category,
                     upvotes: data.upvotes,
                     comments: data.comments,
-                    timestamp: (data.timestamp as Timestamp).toDate(),
+                    timestamp: (data.timestamp as Timestamp)?.toDate() || new Date(),
                     content: data.content,
                 };
             });
@@ -132,14 +133,20 @@ export default function CommunityPage() {
                         posts.map(post => (
                             <div key={post.id} className="flex items-start gap-4 p-4 border rounded-lg hover:bg-secondary/50 transition-colors">
                                <Avatar>
-                                    <AvatarImage src={post.author.avatar} alt={post.author.name} data-ai-hint="person face"/>
-                                    <AvatarFallback>{post.author.name.substring(0,2)}</AvatarFallback>
+                                    {post.author ? (
+                                        <>
+                                            <AvatarImage src={post.author.avatar} alt={post.author.name} data-ai-hint="person face"/>
+                                            <AvatarFallback>{post.author.name?.substring(0,2) || 'U'}</AvatarFallback>
+                                        </>
+                                    ) : (
+                                        <AvatarFallback><User className="h-4 w-4" /></AvatarFallback>
+                                    )}
                                </Avatar>
                                <div className="flex-1">
                                     <h3 className="font-semibold text-lg leading-tight">{post.title}</h3>
                                     <p className="text-sm text-muted-foreground mt-2">{post.content}</p>
                                     <div className="text-sm text-muted-foreground mt-2">
-                                        Posted by {post.author.name} &bull; {formatDistanceToNow(post.timestamp, { addSuffix: true })}
+                                        Posted by {post.author?.name || "Unknown Author"} &bull; {formatDistanceToNow(post.timestamp, { addSuffix: true })}
                                     </div>
                                     <div className="flex items-center gap-4 mt-2 text-sm">
                                         <Badge variant="secondary">{post.category}</Badge>
