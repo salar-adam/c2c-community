@@ -1,3 +1,4 @@
+
 'use server'
 
 import { revalidatePath } from 'next/cache'
@@ -91,40 +92,6 @@ export async function createCommunityPost(formData: FormData) {
     return { success: false, message: 'An error occurred while creating the post.' };
   }
 }
-
-export async function addCommentToPost(postId: string, formData: FormData) {
-    const commentText = formData.get('comment') as string;
-
-    if (!commentText || !commentText.trim()) {
-        return { success: false, message: "Comment cannot be empty." };
-    }
-    if (!postId) {
-        return { success: false, message: "Post ID is missing." };
-    }
-
-    try {
-        const postRef = adminDb.collection('community-posts').doc(postId);
-        const commentRef = postRef.collection('comments').doc();
-
-        const newComment = {
-            author: { name: "Salar", avatar: "https://placehold.co/100x100.png" },
-            text: commentText,
-            timestamp: FieldValue.serverTimestamp(),
-        };
-
-        const batch = adminDb.batch();
-        batch.set(commentRef, newComment);
-        batch.update(postRef, { comments: FieldValue.increment(1) });
-        await batch.commit();
-
-        revalidatePath(`/community/${postId}`);
-        return { success: true, message: "Comment added." };
-    } catch (error) {
-        console.error("Error adding comment: ", error);
-        return { success: false, message: "An error occurred while adding the comment." };
-    }
-}
-
 
 export async function addExpertQuestion(formData: FormData) {
   const rawFormData = {

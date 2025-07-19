@@ -1,8 +1,7 @@
 
 "use client"
 
-import { useState, useRef, useEffect, useTransition } from "react"
-import Link from "next/link"
+import { useState, useEffect, useTransition } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -120,7 +119,7 @@ export default function CommunityPage() {
         );
     }
     return postsToList.map(post => (
-        <Link key={post.id} href={`/community/${post.id}`} className="block">
+        <div key={post.id} className="block">
             <div className="flex items-start gap-4 p-4 border rounded-lg hover:bg-secondary/50 transition-colors">
                <Avatar>
                     {post.author ? (
@@ -151,7 +150,7 @@ export default function CommunityPage() {
                     </div>
                </div>
             </div>
-        </Link>
+        </div>
     ));
   }
 
@@ -226,15 +225,12 @@ export default function CommunityPage() {
 function CreatePostDialog() {
     const [open, setOpen] = useState(false);
     const [isPending, startTransition] = useTransition();
-    const formRef = useRef<HTMLFormElement>(null);
-    const { toast } = useToast();
     
     const handleSubmit = async (formData: FormData) => {
         startTransition(async () => {
             const result = await createCommunityPost(formData);
             if (result.success) {
                 toast({ title: "Success", description: result.message });
-                formRef.current?.reset();
                 setOpen(false);
             } else {
                 toast({ variant: "destructive", title: "Error", description: result.message || "An unexpected error occurred." });
@@ -258,7 +254,6 @@ function CreatePostDialog() {
                     </DialogDescription>
                 </DialogHeader>
                 <form 
-                    ref={formRef}
                     action={handleSubmit}
                     className="space-y-4"
                 >
@@ -295,3 +290,5 @@ function CreatePostDialog() {
         </Dialog>
     );
 }
+
+const { toast } = useToast()
