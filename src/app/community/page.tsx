@@ -190,18 +190,6 @@ function CreatePostDialog({ open, onOpenChange, onPostCreated }: { open: boolean
     const { toast } = useToast();
     const formRef = useRef<HTMLFormElement>(null);
     
-    const handleAction = async (formData: FormData) => {
-        const result = await createCommunityPost(formData);
-        if (result.success) {
-            toast({ title: "Success", description: result.message });
-            onOpenChange(false);
-            onPostCreated();
-        } else {
-            toast({ variant: "destructive", title: "Error", description: result.message });
-        }
-        return result;
-    }
-
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogTrigger asChild>
@@ -217,7 +205,21 @@ function CreatePostDialog({ open, onOpenChange, onPostCreated }: { open: boolean
                         Share your thoughts, questions, or findings with the community.
                     </DialogDescription>
                 </DialogHeader>
-                <form action={handleAction} ref={formRef} className="space-y-4">
+                <form 
+                    ref={formRef}
+                    action={async (formData) => {
+                        const result = await createCommunityPost(formData);
+                        if (result.success) {
+                            toast({ title: "Success", description: result.message });
+                            onOpenChange(false);
+                            onPostCreated();
+                            formRef.current?.reset();
+                        } else {
+                            toast({ variant: "destructive", title: "Error", description: result.message });
+                        }
+                    }}
+                    className="space-y-4"
+                >
                     <div className="space-y-2">
                         <Label htmlFor="title">Title</Label>
                         <Input id="title" name="title" placeholder="Enter a descriptive title" required />
