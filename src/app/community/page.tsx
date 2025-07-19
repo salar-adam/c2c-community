@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef, useActionState } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -11,7 +11,7 @@ import { collection, getDocs, Timestamp } from "firebase/firestore"
 import { formatDistanceToNow } from "date-fns"
 import { seedCommunityPosts, createCommunityPost } from "@/app/actions"
 import { useToast } from "@/hooks/use-toast"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription, DialogTrigger } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -108,10 +108,12 @@ export default function CommunityPage() {
             </p>
         </div>
         <div className="flex gap-2">
-            <Button onClick={handleSeed}>
-                <Database className="mr-2 h-4 w-4" />
-                Seed Posts
-            </Button>
+            <form action={handleSeed}>
+                <Button>
+                    <Database className="mr-2 h-4 w-4" />
+                    Seed Posts
+                </Button>
+            </form>
             <CreatePostDialog open={dialogOpen} onOpenChange={setDialogOpen} onPostCreated={fetchPosts}/>
         </div>
       </div>
@@ -188,7 +190,7 @@ function CreatePostDialog({ open, onOpenChange, onPostCreated }: { open: boolean
     const { toast } = useToast();
     const formRef = useRef<HTMLFormElement>(null);
     
-    async function handleAction(prevState: any, formData: FormData) {
+    const handleAction = async (formData: FormData) => {
         const result = await createCommunityPost(formData);
         if (result.success) {
             toast({ title: "Success", description: result.message });
@@ -199,8 +201,6 @@ function CreatePostDialog({ open, onOpenChange, onPostCreated }: { open: boolean
         }
         return result;
     }
-
-    const [state, formAction] = useActionState(handleAction, { success: false, message: ""});
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -217,7 +217,7 @@ function CreatePostDialog({ open, onOpenChange, onPostCreated }: { open: boolean
                         Share your thoughts, questions, or findings with the community.
                     </DialogDescription>
                 </DialogHeader>
-                <form action={formAction} ref={formRef} className="space-y-4">
+                <form action={handleAction} ref={formRef} className="space-y-4">
                     <div className="space-y-2">
                         <Label htmlFor="title">Title</Label>
                         <Input id="title" name="title" placeholder="Enter a descriptive title" required />
