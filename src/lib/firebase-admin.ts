@@ -14,7 +14,7 @@ function getFirebaseAdminApp() {
     }
 
     if (!process.env.FIREBASE_PRIVATE_KEY) {
-        throw new Error('The FIREBASE_PRIVATE_KEY environment variable is not set.');
+        throw new Error('The FIREBASE_PRIVATE_KEY environment variable is not set. Please check your environment configuration.');
     }
 
     const serviceAccount = {
