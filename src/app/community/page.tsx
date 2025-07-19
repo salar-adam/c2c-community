@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, FormEvent } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -9,7 +9,7 @@ import { MessageSquare, PlusCircle, ThumbsUp, Loader2, Database } from "lucide-r
 import { formatDistanceToNow } from "date-fns"
 import { seedCommunityPosts, createCommunityPost } from "@/app/actions"
 import { useToast } from "@/hooks/use-toast"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -181,21 +181,28 @@ function CreatePostDialog({ onPostCreated }: { onPostCreated: () => void }) {
     const formRef = useRef<HTMLFormElement>(null);
     const { toast } = useToast();
     
-    const handleFormAction = async (e: React.FormEvent<HTMLFormElement>) => {
+    const handleFormAction = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setIsSubmitting(true);
         
-        const formData = new FormData(e.currentTarget);
-        const result = await createCommunityPost(formData);
+        try {
+            const formData = new FormData(e.currentTarget);
+            const result = await createCommunityPost(formData);
 
-        if (result.success) {
-            toast({ title: "Success", description: result.message });
-            setOpen(false);
-            onPostCreated(); 
-        } else {
-            toast({ variant: "destructive", title: "Error", description: result.message });
+            if (result.success) {
+                toast({ title: "Success", description: result.message });
+                formRef.current?.reset();
+                setOpen(false);
+                onPostCreated(); 
+            } else {
+                toast({ variant: "destructive", title: "Error", description: result.message });
+            }
+        } catch (error) {
+            console.error("Error in form action:", error);
+            toast({ variant: "destructive", title: "Error", description: "An unexpected error occurred." });
+        } finally {
+            setIsSubmitting(false);
         }
-        setIsSubmitting(false);
     }
 
     return (
