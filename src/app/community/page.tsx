@@ -1,14 +1,14 @@
-
 "use client"
 
-import { useState, useEffect, useTransition } from "react"
+import { useState, useEffect, useTransition } from "react" // Added useTransition back
+import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { MessageSquare, PlusCircle, ThumbsUp, Loader2, Database, User } from "lucide-react"
+import { MessageSquare, PlusCircle, ThumbsUp, Loader2, User } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
-import { seedCommunityPosts, createCommunityPost } from "@/app/actions"
+import { createCommunityPost } from "@/app/actions"
 import { useToast } from "@/hooks/use-toast"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
@@ -46,7 +46,6 @@ export default function CommunityPage() {
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState("recent");
     const { toast } = useToast()
-    const [isSeeding, startSeedingTransition] = useTransition();
 
     useEffect(() => {
         setLoading(true);
@@ -84,23 +83,6 @@ export default function CommunityPage() {
         return () => unsubscribe();
     }, [activeTab, toast]);
     
-  const handleSeed = () => {
-    startSeedingTransition(async () => {
-        const result = await seedCommunityPosts();
-        if (result.success) {
-            toast({
-                title: "Success",
-                description: result.message,
-            });
-        } else if (result.message) {
-            toast({
-                variant: "destructive",
-                title: "Error",
-                description: result.message,
-            });
-        }
-    });
-  };
   
   const renderPostList = (postsToList: Post[]) => {
     if (loading) {
@@ -114,43 +96,44 @@ export default function CommunityPage() {
         return (
             <div className="text-center text-muted-foreground py-12">
                 <p>No posts yet.</p>
-                <p className="text-sm">Click "Seed Posts" to add some sample data.</p>
             </div>
         );
     }
     return postsToList.map(post => (
-        <div key={post.id} className="block">
-            <div className="flex items-start gap-4 p-4 border rounded-lg hover:bg-secondary/50 transition-colors">
-               <Avatar>
-                    {post.author ? (
-                        <>
-                            <AvatarImage src={post.author.avatar} alt={post.author.name} data-ai-hint="person face"/>
-                            <AvatarFallback>{post.author.name?.substring(0,2) || 'U'}</AvatarFallback>
-                        </>
-                    ) : (
-                        <AvatarFallback><User className="h-4 w-4" /></AvatarFallback>
-                    )}
-               </Avatar>
-               <div className="flex-1">
-                    <h3 className="font-semibold text-lg leading-tight">{post.title}</h3>
-                    <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{post.content}</p>
-                    <div className="text-sm text-muted-foreground mt-2">
-                        Posted by {post.author?.name || "Unknown Author"} &bull; {post.timestamp ? formatDistanceToNow(post.timestamp, { addSuffix: true }) : '...'}
-                    </div>
-                    <div className="flex items-center gap-4 mt-2 text-sm">
-                        <Badge variant="secondary">{post.category}</Badge>
-                        <div className="flex items-center gap-1 text-muted-foreground">
-                            <ThumbsUp className="h-4 w-4" />
-                            <span>{post.upvotes}</span>
+        <Link key={post.id} href={`/community/${post.id}`}>
+            <div className="block">
+                <div className="flex items-start gap-4 p-4 border rounded-lg hover:bg-secondary/50 transition-colors cursor-pointer">
+                   <Avatar>
+                        {post.author ? (
+                            <>
+                                <AvatarImage src={post.author.avatar} alt={post.author.name} data-ai-hint="person face"/>
+                                <AvatarFallback>{post.author.name?.substring(0,2) || 'U'}</AvatarFallback>
+                            </>
+                        ) : (
+                            <AvatarFallback><User className="h-4 w-4" /></AvatarFallback>
+                        )}
+                   </Avatar>
+                   <div className="flex-1">
+                        <h3 className="font-semibold text-lg leading-tight">{post.title}</h3>
+                        <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{post.content}</p>
+                        <div className="text-sm text-muted-foreground mt-2">
+                            Posted by {post.author?.name || "Unknown Author"} &bull; {post.timestamp ? formatDistanceToNow(post.timestamp, { addSuffix: true }) : '...'}
                         </div>
-                        <div className="flex items-center gap-1 text-muted-foreground">
-                            <MessageSquare className="h-4 w-4" />
-                            <span>{post.comments}</span>
+                        <div className="flex items-center gap-4 mt-2 text-sm">
+                            <Badge variant="secondary">{post.category}</Badge>
+                            <div className="flex items-center gap-1 text-muted-foreground">
+                                <ThumbsUp className="h-4 w-4" />
+                                <span>{post.upvotes}</span>
+                            </div>
+                            <div className="flex items-center gap-1 text-muted-foreground">
+                                <MessageSquare className="h-4 w-4" />
+                                <span>{post.comments}</span>
+                            </div>
                         </div>
-                    </div>
-               </div>
+                   </div>
+                </div>
             </div>
-        </div>
+        </Link>
     ));
   }
 
@@ -164,10 +147,6 @@ export default function CommunityPage() {
             </p>
         </div>
         <div className="flex gap-2">
-            <Button onClick={handleSeed} disabled={isSeeding}>
-                {isSeeding ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Database className="mr-2 h-4 w-4" />}
-                Seed Posts
-            </Button>
             <CreatePostDialog />
         </div>
       </div>
