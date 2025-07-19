@@ -43,6 +43,7 @@ export default function CommunityPage() {
     const [posts, setPosts] = useState<Post[]>([]);
     const [loading, setLoading] = useState(true);
     const { toast } = useToast()
+    const [isSeeding, startSeedingTransition] = useTransition();
 
     useEffect(() => {
         const q = query(collection(db, "community-posts"), orderBy("timestamp", "desc"));
@@ -67,7 +68,7 @@ export default function CommunityPage() {
             toast({
                 variant: "destructive",
                 title: "Error",
-                description: "Failed to fetch posts.",
+                description: "Failed to fetch posts. Please check your Firestore security rules.",
             })
             setLoading(false);
         });
@@ -75,20 +76,22 @@ export default function CommunityPage() {
         return () => unsubscribe();
     }, [toast]);
     
-  const handleSeed = async () => {
-    const result = await seedCommunityPosts();
-    if (result.success) {
-        toast({
-            title: "Success",
-            description: result.message,
-        });
-    } else if (result.message) {
-        toast({
-            variant: "destructive",
-            title: "Error",
-            description: result.message,
-        });
-    }
+  const handleSeed = () => {
+    startSeedingTransition(async () => {
+        const result = await seedCommunityPosts();
+        if (result.success) {
+            toast({
+                title: "Success",
+                description: result.message,
+            });
+        } else if (result.message) {
+            toast({
+                variant: "destructive",
+                title: "Error",
+                description: result.message,
+            });
+        }
+    });
   };
 
   return (
@@ -101,8 +104,8 @@ export default function CommunityPage() {
             </p>
         </div>
         <div className="flex gap-2">
-            <Button onClick={handleSeed}>
-                <Database className="mr-2 h-4 w-4" />
+            <Button onClick={handleSeed} disabled={isSeeding}>
+                {isSeeding ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Database className="mr-2 h-4 w-4" />}
                 Seed Posts
             </Button>
             <CreatePostDialog />

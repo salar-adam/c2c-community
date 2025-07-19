@@ -28,6 +28,7 @@ export default function RockVaultPage() {
   const [samples, setSamples] = useState<RockSample[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     const q = query(collection(db, "rock-vault-samples"), orderBy("timestamp", "desc"));
@@ -40,11 +41,16 @@ export default function RockVaultPage() {
       setLoading(false);
     }, (error) => {
         console.error("Error fetching rock samples:", error);
+        toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Failed to fetch samples. Please check your Firestore security rules.",
+        });
         setLoading(false);
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [toast]);
 
   return (
     <div className="space-y-6">

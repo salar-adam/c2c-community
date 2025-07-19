@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useTransition } from "react"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -14,22 +14,34 @@ import { Label } from "@/components/ui/label"
 import { GeoNexusLogo } from "@/components/icons"
 import Link from "next/link"
 import { submitEliteInvite } from "@/app/actions"
+import { useToast } from "@/hooks/use-toast"
+import { Loader2 } from "lucide-react"
 
 export default function EliteInvitePage() {
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [isPending, startTransition] = useTransition();
+  const { toast } = useToast();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const formData = new FormData(event.currentTarget)
-    const result = await submitEliteInvite(formData)
+    
+    startTransition(async () => {
+        setError(null);
+        const result = await submitEliteInvite(formData)
 
-    if (result.success) {
-      setIsSubmitted(true)
-      setError(null)
-    } else {
-      setError(result.message)
-    }
+        if (result.success) {
+        setIsSubmitted(true)
+        } else {
+        setError(result.message)
+        toast({
+            variant: "destructive",
+            title: "Submission Error",
+            description: result.message
+        });
+        }
+    });
   }
 
   return (
@@ -66,7 +78,8 @@ export default function EliteInvitePage() {
               
               {error && <p className="text-sm text-destructive">{error}</p>}
 
-              <Button type="submit" className="w-full">
+              <Button type="submit" className="w-full" disabled={isPending}>
+                {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Submit
               </Button>
             </form>

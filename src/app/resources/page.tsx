@@ -1,14 +1,14 @@
 // @/app/resources/page.tsx
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useTransition } from "react"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { FileText, Video, Database, Search, ArrowRight, Loader2, DatabaseZap } from "lucide-react"
 import { db } from "@/lib/firebase"
-import { collection, onSnapshot, query, orderBy, Timestamp } from "firebase/firestore"
+import { collection, onSnapshot, query, orderBy } from "firebase/firestore"
 import { seedResources } from "@/app/actions"
 import { useToast } from "@/hooks/use-toast"
 
@@ -34,6 +34,7 @@ const ResourceIcon = ({ iconName }: { iconName: string }) => {
 export default function ResourcesPage() {
   const [resources, setResources] = useState<Resource[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isSeeding, startSeedingTransition] = useTransition();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -50,27 +51,29 @@ export default function ResourcesPage() {
         toast({
             variant: "destructive",
             title: "Error",
-            description: "Failed to fetch resources.",
+            description: "Failed to fetch resources. Please check your Firestore security rules.",
         })
         setLoading(false);
     });
     return () => unsubscribe();
   }, [toast]);
 
-  const handleSeed = async () => {
-    const result = await seedResources();
-    if (result.success) {
-      toast({
-        title: "Success",
-        description: result.message,
-      });
-    } else if (result.message) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: result.message,
-      })
-    }
+  const handleSeed = () => {
+    startSeedingTransition(async () => {
+        const result = await seedResources();
+        if (result.success) {
+        toast({
+            title: "Success",
+            description: result.message,
+        });
+        } else if (result.message) {
+        toast({
+            variant: "destructive",
+            title: "Error",
+            description: result.message,
+        })
+        }
+    });
   };
 
   return (
@@ -82,8 +85,8 @@ export default function ResourcesPage() {
             Access a curated library of research papers, case studies, and educational materials.
           </p>
         </div>
-         <Button onClick={handleSeed}>
-            <DatabaseZap className="mr-2 h-4 w-4" />
+         <Button onClick={handleSeed} disabled={isSeeding}>
+            {isSeeding ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <DatabaseZap className="mr-2 h-4 w-4" />}
             Seed Resources
         </Button>
       </div>

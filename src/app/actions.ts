@@ -125,7 +125,7 @@ export async function seedCommunityPosts() {
     const snapshot = await postsCollection.limit(1).get();
     if (!snapshot.empty) {
       console.log("Sample posts have already been added.");
-      return { success: false, message: "Sample posts have already been added." };
+      return { success: true, message: "Sample posts have already been added." };
     }
 
     const batch = adminDb.batch();
@@ -189,7 +189,7 @@ export async function seedResources() {
   try {
     const snapshot = await resourcesCollection.limit(1).get();
     if (!snapshot.empty) {
-      return { success: false, message: "Sample resources have already been added." };
+      return { success: true, message: "Sample resources have already been added." };
     }
 
     const batch = adminDb.batch();
@@ -254,7 +254,7 @@ export async function seedExpertQuestions() {
   try {
     const snapshot = await questionsCollection.limit(1).get();
     if (!snapshot.empty) {
-      return { success: false, message: "Sample questions have already been added." };
+      return { success: true, message: "Sample questions have already been added." };
     }
 
     const batch = adminDb.batch();

@@ -39,6 +39,7 @@ interface Question {
 export default function AskAGeoscientistPage() {
   const [questions, setQuestions] = useState<Question[]>([])
   const [loading, setLoading] = useState(true)
+  const [isSeeding, startSeedingTransition] = useTransition();
   const { toast } = useToast()
 
   useEffect(() => {
@@ -63,7 +64,7 @@ export default function AskAGeoscientistPage() {
         toast({
             variant: "destructive",
             title: "Error",
-            description: "Failed to fetch questions.",
+            description: "Failed to fetch questions. Please check Firestore security rules.",
         })
         setLoading(false);
     });
@@ -71,20 +72,22 @@ export default function AskAGeoscientistPage() {
     return () => unsubscribe();
   }, [toast])
 
-  const handleSeed = async () => {
-    const result = await seedExpertQuestions()
-    if (result.success) {
-      toast({
-        title: "Success",
-        description: result.message,
-      });
-    } else if (result.message) { // Only show toast if there's a message
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: result.message,
-      })
-    }
+  const handleSeed = () => {
+    startSeedingTransition(async () => {
+        const result = await seedExpertQuestions()
+        if (result.success) {
+        toast({
+            title: "Success",
+            description: result.message,
+        });
+        } else if (result.message) { 
+        toast({
+            variant: "destructive",
+            title: "Error",
+            description: result.message,
+        })
+        }
+    });
   }
 
   return (
@@ -97,8 +100,8 @@ export default function AskAGeoscientistPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-           <Button onClick={handleSeed}>
-                <DatabaseZap className="mr-2 h-4 w-4" />
+           <Button onClick={handleSeed} disabled={isSeeding}>
+                {isSeeding ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <DatabaseZap className="mr-2 h-4 w-4" />}
                 Seed Questions
             </Button>
             <AskQuestionDialog />

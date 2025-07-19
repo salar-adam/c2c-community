@@ -2,13 +2,13 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // Allow public read access to most collections
+    
+    // Allow public read access for most collections
     match /community-posts/{postId} {
       allow read: if true;
-      allow write: if false; // Block client-side writes for now
+      allow write: if false; // Disallow client-side writes for now
     }
-
+    
     match /resources/{resourceId} {
       allow read: if true;
       allow write: if false;
@@ -23,11 +23,17 @@ service cloud.firestore {
       allow read: if true;
       allow write: if false;
     }
-
-    // Allow writes only for specific actions like submitting a form
+    
+    // Allow writes only for join requests, which is a specific action
     match /join-requests/{requestId} {
-      allow read: if false; // Nobody should be able to read these
-      allow create: if true; // Allow anyone to submit a join request
+      allow read: if false; // No one should read these
+      allow create: if true; // Allow anyone to create a join request
+      allow update, delete: if false;
+    }
+
+    // Default deny all other collections
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }
