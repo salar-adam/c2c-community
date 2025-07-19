@@ -6,9 +6,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { MessageSquare, PlusCircle, ThumbsUp, Loader2, User } from "lucide-react"
+import { MessageSquare, PlusCircle, ThumbsUp, Loader2, User, DatabaseZap } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
-import { createCommunityPost } from "@/app/actions"
+import { createCommunityPost, seedCommunityPosts } from "@/app/actions"
 import { useToast } from "@/hooks/use-toast"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
@@ -46,6 +46,7 @@ export default function CommunityPage() {
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState("recent");
     const { toast } = useToast()
+    const [isSeeding, startSeedingTransition] = useTransition();
 
     useEffect(() => {
         setLoading(true);
@@ -82,7 +83,24 @@ export default function CommunityPage() {
 
         return () => unsubscribe();
     }, [activeTab, toast]);
-    
+
+    const handleSeed = () => {
+        startSeedingTransition(async () => {
+            const result = await seedCommunityPosts();
+            if (result.success) {
+                toast({
+                    title: "Success",
+                    description: result.message,
+                });
+            } else if (result.message) { 
+                toast({
+                    variant: "destructive",
+                    title: "Error",
+                    description: result.message,
+                })
+            }
+        });
+    }
   
   const renderPostList = (postsToList: Post[]) => {
     if (loading) {
@@ -94,9 +112,10 @@ export default function CommunityPage() {
     }
     if (postsToList.length === 0) {
         return (
-            <div className="text-center text-muted-foreground py-12">
-                <p>No posts yet.</p>
-            </div>
+          <div className="text-center text-muted-foreground py-12">
+            <p>No posts yet.</p>
+            <p className="text-sm">Click "Seed Posts" to add some sample data or create your own.</p>
+          </div>
         );
     }
     return postsToList.map(post => (
@@ -147,6 +166,10 @@ export default function CommunityPage() {
             </p>
         </div>
         <div className="flex gap-2">
+            <Button onClick={handleSeed} disabled={isSeeding} variant="outline">
+                {isSeeding ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <DatabaseZap className="mr-2 h-4 w-4" />}
+                Seed Posts
+            </Button>
             <CreatePostDialog />
         </div>
       </div>
