@@ -3,30 +3,42 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Allow public read access to community posts, resources, and expert questions
-    match /community-posts/{postId} {
-      allow read: if true;
-      allow write: if request.auth != null; // Only authenticated users can write
+    // Helper function to check if a user is authenticated.
+    // In a real app, you would expand this to check roles, etc.
+    function isSignedIn() {
+      return request.auth != null;
     }
 
-    match /resources/{resourceId} {
+    // Read access is public for most collections to allow visitors to see content.
+    // Write access is generally restricted to authenticated users.
+    // This is a basic setup; a production app would have more granular rules.
+
+    match /community-posts/{postId} {
       allow read: if true;
-      allow write: if false; // Disallow client-side writes for now
+      allow write: if isSignedIn();
     }
 
     match /expert-questions/{questionId} {
       allow read: if true;
-      allow write: if request.auth != null; // Only authenticated users can ask
-    }
-    
-    // Allow logged-in users to manage their own rock vault samples
-    match /rock-vault-samples/{sampleId} {
-       allow read, write: if request.auth != null;
+      allow write: if isSignedIn();
     }
 
-    // Disallow reads/writes to other collections by default
-    match /{document=**} {
-      allow read, write: if false;
+    match /resources/{resourceId} {
+      allow read: if true;
+      allow write: if isSignedIn();
+    }
+
+    match /rock-vault-samples/{sampleId} {
+      // In a real app, you'd likely restrict read/write to the user who owns the sample.
+      // For example: allow read, write: if isSignedIn() && request.auth.uid == resource.data.ownerId;
+      allow read: if true;
+      allow write: if isSignedIn();
+    }
+
+    // Join requests should not be public.
+    match /join-requests/{requestId} {
+      allow read: if false; // Should only be readable by admins
+      allow write: if true;  // Allow anyone to submit a request
     }
   }
 }
