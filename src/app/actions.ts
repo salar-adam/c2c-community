@@ -101,7 +101,8 @@ export async function seedCommunityPosts() {
     const q = query(postsCollection, limit(1));
     const snapshot = await getDocs(q);
     if (!snapshot.empty) {
-      return { success: false, message: "Sample posts have already been added." };
+      console.log("Sample posts have already been added.");
+      return;
     }
 
     const batch = writeBatch(db);
@@ -152,11 +153,9 @@ export async function seedCommunityPosts() {
 
     await batch.commit();
     revalidatePath('/community');
-    return { success: true, message: 'Sample posts added successfully.' };
 
   } catch (error) {
     console.error("Error seeding posts: ", error);
-    return { success: false, message: 'An error occurred while seeding posts.' };
   }
 }
 

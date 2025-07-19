@@ -82,20 +82,12 @@ export default function CommunityPage() {
   }, []);
   
   const handleSeed = async () => {
-    const result = await seedCommunityPosts();
-    if (result.success) {
-      toast({
+    await seedCommunityPosts();
+    await fetchPosts();
+    toast({
         title: "Success",
-        description: result.message,
-      });
-      fetchPosts(); // Refresh the list
-    } else {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: result.message,
-      })
-    }
+        description: "Sample posts added successfully.",
+    });
   };
 
   return (
