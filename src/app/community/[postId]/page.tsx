@@ -1,10 +1,10 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import { useParams } from 'next/navigation';
-import { doc, getDoc, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot, Timestamp } from 'firebase/firestore'; // Added collection, addDoc, serverTimestamp, query, orderBy, onSnapshot, Timestamp
-import { db } from '@/lib/firebase';
+import { doc, getDoc, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot, Timestamp } from 'firebase/firestore';
+import { db, auth } from '@/lib/firebase';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -12,6 +12,10 @@ import { ThumbsUp, MessageSquare, Loader2, User } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { toggleUpvote } from '@/app/actions';
+import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 interface Post {
     id: string;
@@ -22,6 +26,7 @@ interface Post {
     title: string;
     category: string;
     upvotes: number;
+    upvotedBy?: string[];
     comments: number;
     timestamp: Date;
     content?: string;
@@ -30,6 +35,7 @@ interface Post {
 interface Comment {
     id: string;
     author: {
+        uid: string;
         name: string;
         avatar: string;
     };
@@ -40,19 +46,17 @@ interface Comment {
 export default function PostPage() {
     const { postId } = useParams();
     const [post, setPost] = useState<Post | null>(null);
-    const [comments, setComments] = useState<Comment[]>([]); // State for comments
-    const [newComment, setNewComment] = useState(''); // State for new comment input
+    const [comments, setComments] = useState<Comment[]>([]);
+    const [newComment, setNewComment] = useState('');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [isSubmittingComment, setIsSubmittingComment] = useState(false); // State for comment submission loading
+    const [isSubmittingComment, setIsSubmittingComment] = useState(false);
+    const [isUpvoting, startUpvoteTransition] = useTransition();
+    const { toast } = useToast();
 
-    // Placeholder for getting current user information
-    // You will need to replace this with your actual authentication logic
-    const currentUser = {
-        name: 'Salar',
-        avatar: 'https://placehold.co/100x100.png',
-    };
+    const [user, authLoading] = useAuthState(auth);
 
+    const hasUpvoted = post?.upvotedBy?.includes(user?.uid || '');
 
     useEffect(() => {
         if (!postId) {
@@ -60,45 +64,37 @@ export default function PostPage() {
             return;
         }
 
-        const fetchPost = async () => {
-            try {
-                const postDocRef = doc(db, 'community-posts', postId as string);
-                const postDocSnap = await getDoc(postDocRef);
-
-                if (postDocSnap.exists()) {
-                    const data = postDocSnap.data();
-                    setPost({
-                        id: postDocSnap.id,
-                        author: data.author,
-                        title: data.title,
-                        category: data.category,
-                        upvotes: data.upvotes,
-                        comments: data.comments,
-                        timestamp: (data.timestamp as Timestamp)?.toDate() || new Date(),
-                        content: data.content,
-                    });
-                } else {
-                    setError('Post not found');
-                }
-            } catch (err) {
-                console.error('Error fetching post:', err);
-                setError('Failed to load post.');
-            } finally {
-                setLoading(false);
+        const postDocRef = doc(db, 'community-posts', postId as string);
+        
+        const unsubscribePost = onSnapshot(postDocRef, (postDocSnap) => {
+            if (postDocSnap.exists()) {
+                const data = postDocSnap.data();
+                setPost({
+                    id: postDocSnap.id,
+                    author: data.author,
+                    title: data.title,
+                    category: data.category,
+                    upvotes: data.upvotes,
+                    upvotedBy: data.upvotedBy || [],
+                    comments: data.comments,
+                    timestamp: (data.timestamp as Timestamp)?.toDate() || new Date(),
+                    content: data.content,
+                });
+                setError(null);
+            } else {
+                setError('Post not found');
             }
-        };
-
-        fetchPost();
-    }, [postId]);
-
-     // Effect to fetch comments
-     useEffect(() => {
-        if (!postId) return;
+            setLoading(false);
+        }, (err) => {
+            console.error('Error fetching post:', err);
+            setError('Failed to load post.');
+            setLoading(false);
+        });
 
         const commentsCollectionRef = collection(db, 'community-posts', postId as string, 'comments');
-        const q = query(commentsCollectionRef, orderBy('timestamp', 'asc')); // Order comments by timestamp
+        const q = query(commentsCollectionRef, orderBy('timestamp', 'asc'));
 
-        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        const unsubscribeComments = onSnapshot(q, (querySnapshot) => {
             const commentsData = querySnapshot.docs.map(doc => {
                 const data = doc.data();
                 return {
@@ -106,21 +102,31 @@ export default function PostPage() {
                     author: data.author,
                     content: data.content,
                     timestamp: (data.timestamp as Timestamp)?.toDate() || new Date(),
-                };
+                } as Comment;
             });
             setComments(commentsData);
         }, (error) => {
             console.error('Error fetching comments:', error);
-            // Optionally show a toast notification for comment fetching error
+            toast({
+                variant: 'destructive',
+                title: "Error",
+                description: "Failed to load comments."
+            })
         });
 
-        return () => unsubscribe(); // Unsubscribe when the component unmounts
-    }, [postId]);
-
+        return () => {
+            unsubscribePost();
+            unsubscribeComments();
+        };
+    }, [postId, toast]);
 
     const handleCommentSubmit = async () => {
-        if (!newComment.trim() || !postId || !currentUser) {
-            // Prevent submitting empty comments or if user is not logged in
+        if (!newComment.trim() || !postId || !user) {
+            toast({
+                variant: 'destructive',
+                title: "Cannot submit comment",
+                description: "You must be logged in to comment.",
+            })
             return;
         }
 
@@ -130,24 +136,48 @@ export default function PostPage() {
             const commentsCollectionRef = collection(db, 'community-posts', postId as string, 'comments');
             await addDoc(commentsCollectionRef, {
                 author: {
-                    name: currentUser.name,
-                    avatar: currentUser.avatar,
+                    uid: user.uid,
+                    name: user.displayName || 'Anonymous User',
+                    avatar: user.photoURL || `https://placehold.co/100x100.png?text=${user.displayName?.charAt(0) || 'U'}`,
                 },
                 content: newComment,
-                timestamp: serverTimestamp(), // Use serverTimestamp for accurate timing
+                timestamp: serverTimestamp(),
             });
-
-            setNewComment(''); // Clear the input field
+            setNewComment('');
         } catch (error) {
             console.error('Error adding comment:', error);
-            // Optionally show a toast notification for the error
+            toast({
+                variant: 'destructive',
+                title: "Error",
+                description: "Could not submit your comment. Please try again."
+            })
         } finally {
             setIsSubmittingComment(false);
         }
     };
 
+    const handleUpvote = () => {
+        if (!user || !postId) {
+            toast({
+                variant: "destructive",
+                title: "Login Required",
+                description: "You must be logged in to upvote posts.",
+            });
+            return;
+        }
+        startUpvoteTransition(async () => {
+            const result = await toggleUpvote(postId as string, user.uid);
+            if (!result.success) {
+                toast({
+                    variant: "destructive",
+                    title: "Upvote Failed",
+                    description: result.message,
+                });
+            }
+        });
+    };
 
-    if (loading) {
+    if (loading || authLoading) {
         return (
             <div className="flex justify-center items-center h-screen">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -186,10 +216,19 @@ export default function PostPage() {
                     <Badge variant="secondary">{post.category}</Badge>
                     <p className="text-lg">{post.content}</p>
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                        <div className="flex items-center gap-1">
-                            <ThumbsUp className="h-4 w-4" />
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={handleUpvote}
+                            disabled={isUpvoting || !user}
+                            className={cn(
+                                "flex items-center gap-1",
+                                hasUpvoted && "text-primary"
+                            )}
+                        >
+                            <ThumbsUp className={cn("h-4 w-4", hasUpvoted && "fill-current")} />
                             <span>{post.upvotes}</span>
-                        </div>
+                        </Button>
                         <div className="flex items-center gap-1">
                             <MessageSquare className="h-4 w-4" />
                             <span>{comments.length}</span>
@@ -225,7 +264,7 @@ export default function PostPage() {
                                 ))
                             )}
                              {/* Comment Form */}
-                            {currentUser && ( // Only show the comment form if a user is logged in
+                            {user && (
                                 <div className="mt-4 border-t pt-4">
                                     <h4 className="text-lg font-semibold mb-2">Add a Comment</h4>
                                     <Textarea
@@ -246,8 +285,8 @@ export default function PostPage() {
                                     </Button>
                                 </div>
                             )}
-                             {!currentUser && (
-                                <div className="text-center text-muted-foreground mt-4">Please log in to comment.</div>
+                             {!user && !authLoading && (
+                                <div className="text-center text-muted-foreground mt-4 border-t pt-4">Please log in to comment.</div>
                             )}
                         </div>
                     </div>
@@ -256,4 +295,3 @@ export default function PostPage() {
         </div>
     );
 }
-

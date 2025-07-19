@@ -118,6 +118,50 @@ export async function addExpertQuestion(formData: FormData) {
   }
 }
 
+export async function toggleUpvote(postId: string, userId: string) {
+    if (!userId) {
+        return { success: false, message: "User not authenticated." };
+    }
+
+    const postRef = adminDb.collection('community-posts').doc(postId);
+    const transaction = adminDb.runTransaction(async (t) => {
+        const postDoc = await t.get(postRef);
+        if (!postDoc.exists) {
+            throw new Error("Post not found");
+        }
+
+        const postData = postDoc.data();
+        const upvotedBy = postData?.upvotedBy || [];
+        let newUpvotesCount;
+
+        if (upvotedBy.includes(userId)) {
+            // User has already upvoted, so remove upvote
+            t.update(postRef, {
+                upvotedBy: FieldValue.arrayRemove(userId),
+                upvotes: FieldValue.increment(-1),
+            });
+            newUpvotesCount = (postData?.upvotes || 1) - 1;
+        } else {
+            // User has not upvoted, so add upvote
+            t.update(postRef, {
+                upvotedBy: FieldValue.arrayUnion(userId),
+                upvotes: FieldValue.increment(1),
+            });
+            newUpvotesCount = (postData?.upvotes || 0) + 1;
+        }
+        return { newUpvotesCount };
+    });
+
+    try {
+        const result = await transaction;
+        revalidatePath(`/community/${postId}`);
+        return { success: true, message: "Upvote toggled.", upvotes: result.newUpvotesCount };
+    } catch (error) {
+        console.error('Error toggling upvote: ', error);
+        return { success: false, message: 'An error occurred while toggling the upvote.' };
+    }
+}
+
 
 export async function seedCommunityPosts() {
   const postsCollection = adminDb.collection('community-posts');
