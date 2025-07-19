@@ -1,11 +1,13 @@
 import "server-only"
 import * as admin from 'firebase-admin';
+import { getAuth } from "firebase-admin/auth";
+import { getFirestore } from "firebase-admin/firestore";
 import serviceAccount from '../../firebase-service-account-key.json';
 
 // This is a singleton pattern to ensure we only initialize the app once.
-if (!globalThis.firebaseAdminApp) {
+if (!admin.apps.length) {
   try {
-    globalThis.firebaseAdminApp = admin.initializeApp({
+    admin.initializeApp({
       credential: admin.credential.cert(serviceAccount as admin.ServiceAccount),
     });
   } catch (error) {
@@ -16,5 +18,5 @@ if (!globalThis.firebaseAdminApp) {
   }
 }
 
-export const adminDb = admin.firestore();
-export const adminAuth = admin.auth();
+export const adminDb = getFirestore();
+export const adminAuth = getAuth();
