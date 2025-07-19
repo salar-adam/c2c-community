@@ -13,6 +13,10 @@ function getFirebaseAdminApp() {
         return firebaseAdminApp;
     }
 
+    if (!process.env.FIREBASE_PRIVATE_KEY) {
+        throw new Error('The FIREBASE_PRIVATE_KEY environment variable is not set.');
+    }
+
     const serviceAccount = {
         type: process.env.FIREBASE_TYPE,
         project_id: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
