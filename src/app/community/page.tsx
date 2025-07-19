@@ -17,6 +17,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { db } from "@/lib/firebase"
 import { collection, Timestamp, query, orderBy, onSnapshot } from "firebase/firestore"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 const channels = [
     { name: "General Discussion", color: "bg-blue-500" },
@@ -41,13 +42,23 @@ interface Post {
 }
 
 export default function CommunityPage() {
-    const [posts, setPosts] = useState<Post[]>([]);
+    const [recentPosts, setRecentPosts] = useState<Post[]>([]);
+    const [popularPosts, setPopularPosts] = useState<Post[]>([]);
     const [loading, setLoading] = useState(true);
+    const [activeTab, setActiveTab] = useState("recent");
     const { toast } = useToast()
     const [isSeeding, startSeedingTransition] = useTransition();
 
     useEffect(() => {
-        const q = query(collection(db, "community-posts"), orderBy("timestamp", "desc"));
+        setLoading(true);
+        const postsCollection = collection(db, "community-posts");
+        let q;
+        if (activeTab === 'recent') {
+            q = query(postsCollection, orderBy("timestamp", "desc"));
+        } else {
+            q = query(postsCollection, orderBy("upvotes", "desc"));
+        }
+
         const unsubscribe = onSnapshot(q, (querySnapshot) => {
             const postsData = querySnapshot.docs.map(doc => {
                 const data = doc.data();
@@ -62,10 +73,14 @@ export default function CommunityPage() {
                     content: data.content,
                 };
             });
-            setPosts(postsData);
+            if (activeTab === 'recent') {
+                setRecentPosts(postsData);
+            } else {
+                setPopularPosts(postsData);
+            }
             setLoading(false);
         }, (error) => {
-            console.error("Error fetching posts in real-time: ", error);
+            console.error(`Error fetching ${activeTab} posts in real-time: `, error);
             toast({
                 variant: "destructive",
                 title: "Error",
@@ -75,7 +90,7 @@ export default function CommunityPage() {
         });
 
         return () => unsubscribe();
-    }, [toast]);
+    }, [activeTab, toast]);
     
   const handleSeed = () => {
     startSeedingTransition(async () => {
@@ -94,6 +109,56 @@ export default function CommunityPage() {
         }
     });
   };
+  
+  const renderPostList = (posts: Post[]) => {
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center h-48">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+        );
+    }
+    if (posts.length === 0) {
+        return (
+            <div className="text-center text-muted-foreground py-12">
+                <p>No posts yet.</p>
+                <p className="text-sm">Click "Seed Posts" to add some sample data.</p>
+            </div>
+        );
+    }
+    return posts.map(post => (
+        <div key={post.id} className="flex items-start gap-4 p-4 border rounded-lg hover:bg-secondary/50 transition-colors">
+           <Avatar>
+                {post.author ? (
+                    <>
+                        <AvatarImage src={post.author.avatar} alt={post.author.name} data-ai-hint="person face"/>
+                        <AvatarFallback>{post.author.name?.substring(0,2) || 'U'}</AvatarFallback>
+                    </>
+                ) : (
+                    <AvatarFallback><User className="h-4 w-4" /></AvatarFallback>
+                )}
+           </Avatar>
+           <div className="flex-1">
+                <h3 className="font-semibold text-lg leading-tight">{post.title}</h3>
+                <p className="text-sm text-muted-foreground mt-2">{post.content}</p>
+                <div className="text-sm text-muted-foreground mt-2">
+                    Posted by {post.author?.name || "Unknown Author"} &bull; {formatDistanceToNow(post.timestamp, { addSuffix: true })}
+                </div>
+                <div className="flex items-center gap-4 mt-2 text-sm">
+                    <Badge variant="secondary">{post.category}</Badge>
+                    <div className="flex items-center gap-1 text-muted-foreground">
+                        <ThumbsUp className="h-4 w-4" />
+                        <span>{post.upvotes}</span>
+                    </div>
+                    <div className="flex items-center gap-1 text-muted-foreground">
+                        <MessageSquare className="h-4 w-4" />
+                        <span>{post.comments}</span>
+                    </div>
+                </div>
+           </div>
+        </div>
+    ));
+  }
 
   return (
     <div className="space-y-6">
@@ -115,56 +180,32 @@ export default function CommunityPage() {
       
       <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-6 items-start">
         <div className="md:col-span-2 lg:col-span-3 space-y-4">
-             <Card>
-                <CardHeader>
-                    <CardTitle>Recent Posts</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    {loading ? (
-                        <div className="flex justify-center items-center h-48">
-                            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                        </div>
-                    ) : posts.length === 0 ? (
-                        <div className="text-center text-muted-foreground py-12">
-                            <p>No posts yet.</p>
-                            <p className="text-sm">Click "Seed Posts" to add some sample data.</p>
-                        </div>
-                    ) : (
-                        posts.map(post => (
-                            <div key={post.id} className="flex items-start gap-4 p-4 border rounded-lg hover:bg-secondary/50 transition-colors">
-                               <Avatar>
-                                    {post.author ? (
-                                        <>
-                                            <AvatarImage src={post.author.avatar} alt={post.author.name} data-ai-hint="person face"/>
-                                            <AvatarFallback>{post.author.name?.substring(0,2) || 'U'}</AvatarFallback>
-                                        </>
-                                    ) : (
-                                        <AvatarFallback><User className="h-4 w-4" /></AvatarFallback>
-                                    )}
-                               </Avatar>
-                               <div className="flex-1">
-                                    <h3 className="font-semibold text-lg leading-tight">{post.title}</h3>
-                                    <p className="text-sm text-muted-foreground mt-2">{post.content}</p>
-                                    <div className="text-sm text-muted-foreground mt-2">
-                                        Posted by {post.author?.name || "Unknown Author"} &bull; {formatDistanceToNow(post.timestamp, { addSuffix: true })}
-                                    </div>
-                                    <div className="flex items-center gap-4 mt-2 text-sm">
-                                        <Badge variant="secondary">{post.category}</Badge>
-                                        <div className="flex items-center gap-1 text-muted-foreground">
-                                            <ThumbsUp className="h-4 w-4" />
-                                            <span>{post.upvotes}</span>
-                                        </div>
-                                        <div className="flex items-center gap-1 text-muted-foreground">
-                                            <MessageSquare className="h-4 w-4" />
-                                            <span>{post.comments}</span>
-                                        </div>
-                                    </div>
-                               </div>
-                            </div>
-                        ))
-                    )}
-                </CardContent>
-            </Card>
+             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                <TabsList>
+                    <TabsTrigger value="recent">Recent</TabsTrigger>
+                    <TabsTrigger value="popular">Popular</TabsTrigger>
+                </TabsList>
+                <TabsContent value="recent" className="mt-4">
+                     <Card>
+                        <CardHeader>
+                            <CardTitle>Recent Posts</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                           {renderPostList(recentPosts)}
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+                <TabsContent value="popular" className="mt-4">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Popular Posts</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                           {renderPostList(popularPosts)}
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+            </Tabs>
         </div>
         <div>
             <Card>
