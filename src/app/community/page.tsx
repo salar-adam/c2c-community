@@ -2,6 +2,7 @@
 "use client"
 
 import { useState, useRef, useEffect, useTransition } from "react"
+import Link from "next/link"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -42,8 +43,7 @@ interface Post {
 }
 
 export default function CommunityPage() {
-    const [recentPosts, setRecentPosts] = useState<Post[]>([]);
-    const [popularPosts, setPopularPosts] = useState<Post[]>([]);
+    const [posts, setPosts] = useState<Post[]>([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState("recent");
     const { toast } = useToast()
@@ -52,12 +52,9 @@ export default function CommunityPage() {
     useEffect(() => {
         setLoading(true);
         const postsCollection = collection(db, "community-posts");
-        let q;
-        if (activeTab === 'recent') {
-            q = query(postsCollection, orderBy("timestamp", "desc"));
-        } else {
-            q = query(postsCollection, orderBy("upvotes", "desc"));
-        }
+        const q = activeTab === 'recent'
+            ? query(postsCollection, orderBy("timestamp", "desc"))
+            : query(postsCollection, orderBy("upvotes", "desc"));
 
         const unsubscribe = onSnapshot(q, (querySnapshot) => {
             const postsData = querySnapshot.docs.map(doc => {
@@ -73,11 +70,7 @@ export default function CommunityPage() {
                     content: data.content,
                 };
             });
-            if (activeTab === 'recent') {
-                setRecentPosts(postsData);
-            } else {
-                setPopularPosts(postsData);
-            }
+            setPosts(postsData);
             setLoading(false);
         }, (error) => {
             console.error(`Error fetching ${activeTab} posts in real-time: `, error);
@@ -110,7 +103,7 @@ export default function CommunityPage() {
     });
   };
   
-  const renderPostList = (posts: Post[]) => {
+  const renderPostList = (postsToList: Post[]) => {
     if (loading) {
         return (
             <div className="flex justify-center items-center h-48">
@@ -118,7 +111,7 @@ export default function CommunityPage() {
             </div>
         );
     }
-    if (posts.length === 0) {
+    if (postsToList.length === 0) {
         return (
             <div className="text-center text-muted-foreground py-12">
                 <p>No posts yet.</p>
@@ -126,37 +119,39 @@ export default function CommunityPage() {
             </div>
         );
     }
-    return posts.map(post => (
-        <div key={post.id} className="flex items-start gap-4 p-4 border rounded-lg hover:bg-secondary/50 transition-colors">
-           <Avatar>
-                {post.author ? (
-                    <>
-                        <AvatarImage src={post.author.avatar} alt={post.author.name} data-ai-hint="person face"/>
-                        <AvatarFallback>{post.author.name?.substring(0,2) || 'U'}</AvatarFallback>
-                    </>
-                ) : (
-                    <AvatarFallback><User className="h-4 w-4" /></AvatarFallback>
-                )}
-           </Avatar>
-           <div className="flex-1">
-                <h3 className="font-semibold text-lg leading-tight">{post.title}</h3>
-                <p className="text-sm text-muted-foreground mt-2">{post.content}</p>
-                <div className="text-sm text-muted-foreground mt-2">
-                    Posted by {post.author?.name || "Unknown Author"} &bull; {formatDistanceToNow(post.timestamp, { addSuffix: true })}
-                </div>
-                <div className="flex items-center gap-4 mt-2 text-sm">
-                    <Badge variant="secondary">{post.category}</Badge>
-                    <div className="flex items-center gap-1 text-muted-foreground">
-                        <ThumbsUp className="h-4 w-4" />
-                        <span>{post.upvotes}</span>
+    return postsToList.map(post => (
+        <Link key={post.id} href={`/community/${post.id}`} className="block">
+            <div className="flex items-start gap-4 p-4 border rounded-lg hover:bg-secondary/50 transition-colors">
+               <Avatar>
+                    {post.author ? (
+                        <>
+                            <AvatarImage src={post.author.avatar} alt={post.author.name} data-ai-hint="person face"/>
+                            <AvatarFallback>{post.author.name?.substring(0,2) || 'U'}</AvatarFallback>
+                        </>
+                    ) : (
+                        <AvatarFallback><User className="h-4 w-4" /></AvatarFallback>
+                    )}
+               </Avatar>
+               <div className="flex-1">
+                    <h3 className="font-semibold text-lg leading-tight">{post.title}</h3>
+                    <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{post.content}</p>
+                    <div className="text-sm text-muted-foreground mt-2">
+                        Posted by {post.author?.name || "Unknown Author"} &bull; {formatDistanceToNow(post.timestamp, { addSuffix: true })}
                     </div>
-                    <div className="flex items-center gap-1 text-muted-foreground">
-                        <MessageSquare className="h-4 w-4" />
-                        <span>{post.comments}</span>
+                    <div className="flex items-center gap-4 mt-2 text-sm">
+                        <Badge variant="secondary">{post.category}</Badge>
+                        <div className="flex items-center gap-1 text-muted-foreground">
+                            <ThumbsUp className="h-4 w-4" />
+                            <span>{post.upvotes}</span>
+                        </div>
+                        <div className="flex items-center gap-1 text-muted-foreground">
+                            <MessageSquare className="h-4 w-4" />
+                            <span>{post.comments}</span>
+                        </div>
                     </div>
-                </div>
-           </div>
-        </div>
+               </div>
+            </div>
+        </Link>
     ));
   }
 
@@ -191,7 +186,7 @@ export default function CommunityPage() {
                             <CardTitle>Recent Posts</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                           {renderPostList(recentPosts)}
+                           {renderPostList(posts)}
                         </CardContent>
                     </Card>
                 </TabsContent>
@@ -201,7 +196,7 @@ export default function CommunityPage() {
                             <CardTitle>Popular Posts</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                           {renderPostList(popularPosts)}
+                           {renderPostList(posts)}
                         </CardContent>
                     </Card>
                 </TabsContent>
