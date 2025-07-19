@@ -1,21 +1,7 @@
 import "server-only"
 
 import * as admin from "firebase-admin";
-
-const serviceAccountString = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
-
-if (!serviceAccountString) {
-  throw new Error('Firebase service account key is not set in environment variables.');
-}
-
-let serviceAccount;
-try {
-    const decodedKey = Buffer.from(serviceAccountString, 'base64').toString('utf-8');
-    serviceAccount = JSON.parse(decodedKey);
-} catch (error) {
-    throw new Error('Failed to parse Firebase service account key. Ensure it is a valid, Base64-encoded JSON string.');
-}
-
+import serviceAccount from "../../firebase-service-account-key.json";
 
 if (!admin.apps.length) {
   admin.initializeApp({
@@ -24,3 +10,4 @@ if (!admin.apps.length) {
 }
 
 export const adminDb = admin.firestore();
+    
