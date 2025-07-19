@@ -20,27 +20,24 @@ import { Loader2 } from "lucide-react"
 
 export default function JoinRequestPage() {
   const [isSubmitted, setIsSubmitted] = useState(false)
-  const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast()
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const formData = new FormData(event.currentTarget)
     
     startTransition(async () => {
-        setError(null);
         const result = await submitJoinRequest(formData)
         
         if (result.success) {
-        setIsSubmitted(true)
+            setIsSubmitted(true)
         } else {
-        setError(result.message)
-        toast({
-            variant: "destructive",
-            title: "Submission Error",
-            description: result.message
-        });
+            toast({
+                variant: "destructive",
+                title: "Submission Error",
+                description: result.message
+            });
         }
     });
   }
@@ -125,8 +122,6 @@ export default function JoinRequestPage() {
                   </div>
                 </div>
               </div>
-              
-              {error && <p className="text-sm text-destructive">{error}</p>}
 
               <Button type="submit" className="w-full" disabled={isPending}>
                 {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

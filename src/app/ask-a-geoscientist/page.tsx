@@ -166,15 +166,15 @@ function AskQuestionDialog() {
     const formRef = useRef<HTMLFormElement>(null);
     const { toast } = useToast();
     
-    const handleSubmit = (formData: FormData) => {
+    const handleSubmit = async (formData: FormData) => {
         startTransition(async () => {
             const result = await addExpertQuestion(formData);
-            if (result?.success) {
+            if (result.success) {
                 toast({ title: "Success", description: result.message });
                 formRef.current?.reset();
                 setOpen(false);
             } else {
-                toast({ variant: "destructive", title: "Error", description: result?.message || "An unexpected error occurred." });
+                toast({ variant: "destructive", title: "Error", description: result.message || "An unexpected error occurred." });
             }
         });
     }
