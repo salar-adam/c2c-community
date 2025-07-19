@@ -9,7 +9,7 @@ import { MessageSquare, PlusCircle, ThumbsUp, Loader2, Database } from "lucide-r
 import { formatDistanceToNow } from "date-fns"
 import { seedCommunityPosts, createCommunityPost } from "@/app/actions"
 import { useToast } from "@/hooks/use-toast"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger, DialogFooter } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
