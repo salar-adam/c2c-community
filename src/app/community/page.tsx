@@ -73,34 +73,20 @@ export default function CommunityPage() {
     fetchPosts();
   }, []);
   
-  // This effect will show a toast message when the form action completes.
-  // It relies on the page re-rendering after the action.
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get("seeded") === "true") {
-       toast({
-        title: "Success",
-        description: "Sample posts have been added to the database.",
-      });
-       // remove the query param to avoid showing the toast on refresh
-       window.history.replaceState({}, document.title, "/community");
-    } else if (urlParams.get("seeded") === "false") {
-         toast({
-            variant: "destructive",
-            title: "Already Seeded",
-            description: "Sample posts have already been added.",
-        })
-        window.history.replaceState({}, document.title, "/community");
-    }
-  }, [toast]);
-
-
-  const handleSeed = async (formData: FormData) => {
+  const handleSeed = async () => {
     const result = await seedCommunityPosts();
-     if (result.success) {
-      window.location.search = `?seeded=true`;
+    if (result.success) {
+      toast({
+        title: "Success",
+        description: result.message,
+      });
+      fetchPosts(); // Refresh the list
     } else {
-       window.location.search = `?seeded=false&message=${encodeURIComponent(result.message || 'Error')}`;
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: result.message,
+      })
     }
   };
 
@@ -115,12 +101,10 @@ export default function CommunityPage() {
             </p>
         </div>
         <div className="flex gap-2">
-            <form action={handleSeed}>
-                <Button type="submit">
-                    <Database className="mr-2 h-4 w-4" />
-                    Seed Posts
-                </Button>
-            </form>
+            <Button onClick={handleSeed}>
+                <Database className="mr-2 h-4 w-4" />
+                Seed Posts
+            </Button>
             <Button disabled>
                 <PlusCircle className="mr-2 h-4 w-4" />
                 Create Post
