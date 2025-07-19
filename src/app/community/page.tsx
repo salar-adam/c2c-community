@@ -76,11 +76,19 @@ export default function CommunityPage() {
     }, [toast]);
     
   const handleSeed = async () => {
-    await seedCommunityPosts();
-    toast({
-        title: "Success",
-        description: "Sample posts added successfully.",
-    });
+    const result = await seedCommunityPosts();
+    if (result.success) {
+        toast({
+            title: "Success",
+            description: "Sample posts added successfully.",
+        });
+    } else {
+        toast({
+            variant: "destructive",
+            title: "Error",
+            description: result.message || "An unexpected error occurred.",
+        });
+    }
   };
 
   return (
@@ -93,12 +101,10 @@ export default function CommunityPage() {
             </p>
         </div>
         <div className="flex gap-2">
-            <form action={handleSeed}>
-                <Button>
-                    <Database className="mr-2 h-4 w-4" />
-                    Seed Posts
-                </Button>
-            </form>
+            <Button onClick={handleSeed}>
+                <Database className="mr-2 h-4 w-4" />
+                Seed Posts
+            </Button>
             <CreatePostDialog />
         </div>
       </div>

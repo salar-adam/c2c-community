@@ -2,8 +2,8 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { db } from '@/lib/firebase'
-import { collection, addDoc, writeBatch, getDocs, Timestamp, query, limit, doc } from 'firebase/firestore'
+import { adminDb } from '@/lib/firebase-admin'
+import { FieldValue } from 'firebase-admin/firestore'
 
 export async function submitJoinRequest(formData: FormData) {
   const rawFormData = {
@@ -17,12 +17,12 @@ export async function submitJoinRequest(formData: FormData) {
     learningGoals: formData.get('learning-goals') as string,
     howDidYouHear: formData.get('how-did-you-hear') as string,
     invitationCode: formData.get('invitation-code') as string | null,
-    submittedAt: new Date(),
+    submittedAt: FieldValue.serverTimestamp(),
     type: 'join-request',
   }
 
   try {
-    await addDoc(collection(db, 'join-requests'), rawFormData)
+    await adminDb.collection('join-requests').add(rawFormData)
     revalidatePath('/join-request')
     return { success: true, message: 'Application submitted successfully.' }
   } catch (error) {
@@ -35,12 +35,12 @@ export async function submitEliteInvite(formData: FormData) {
   const rawFormData = {
     eliteMemberName: formData.get('elite-member-name') as string,
     invitationCode: formData.get('invitation-code') as string,
-    submittedAt: new Date(),
+    submittedAt: FieldValue.serverTimestamp(),
     type: 'elite-invite',
   }
 
   try {
-    await addDoc(collection(db, 'join-requests'), rawFormData)
+    await adminDb.collection('join-requests').add(rawFormData)
     revalidatePath('/elite-invite')
     return { success: true, message: 'Invitation submitted successfully.' }
   } catch (error) {
@@ -51,9 +51,9 @@ export async function submitEliteInvite(formData: FormData) {
 
 export async function addRockSample(data: { name: string; type: string; locationFound: string; image: string; }) {
   try {
-    await addDoc(collection(db, 'rock-vault-samples'), {
+    await adminDb.collection('rock-vault-samples').add({
       ...data,
-      timestamp: Timestamp.now(),
+      timestamp: FieldValue.serverTimestamp(),
     });
     revalidatePath('/rock-vault');
     return { success: true, message: 'Rock sample added successfully.' };
@@ -82,9 +82,9 @@ export async function createCommunityPost(formData: FormData) {
       author: { name: "Salar", avatar: "https://placehold.co/100x100.png" },
       upvotes: 0,
       comments: 0,
-      timestamp: Timestamp.now(),
+      timestamp: FieldValue.serverTimestamp(),
     };
-    await addDoc(collection(db, 'community-posts'), newPost);
+    await adminDb.collection('community-posts').add(newPost);
     revalidatePath('/community');
     return { success: true, message: 'Post created successfully.' };
   } catch (error) {
@@ -95,17 +95,16 @@ export async function createCommunityPost(formData: FormData) {
 
 
 export async function seedCommunityPosts() {
-  const postsCollection = collection(db, 'community-posts');
+  const postsCollection = adminDb.collection('community-posts');
 
   try {
-    const q = query(postsCollection, limit(1));
-    const snapshot = await getDocs(q);
+    const snapshot = await postsCollection.limit(1).get();
     if (!snapshot.empty) {
       console.log("Sample posts have already been added.");
-      return;
+      return { success: false, message: "Sample posts have already been added." };
     }
 
-    const batch = writeBatch(db);
+    const batch = adminDb.batch();
 
     const samplePosts = [
       {
@@ -114,7 +113,7 @@ export async function seedCommunityPosts() {
         category: "Field Geology",
         upvotes: 128,
         comments: 23,
-        timestamp: Timestamp.now(),
+        timestamp: FieldValue.serverTimestamp(),
         content: "During a recent trip, I observed some fascinating cross-bedding in the Coconino Sandstone. The scale was massive, indicating a vast ancient desert environment. Has anyone else seen similar structures elsewhere?"
       },
       {
@@ -123,7 +122,7 @@ export async function seedCommunityPosts() {
         category: "Geophysics",
         upvotes: 95,
         comments: 42,
-        timestamp: Timestamp.fromDate(new Date(Date.now() - 5 * 60 * 60 * 1000)), // 5 hours ago
+        timestamp: FieldValue.serverTimestamp(),
         content: "Our team is evaluating new 3D modeling software for subsurface interpretation. We're currently looking at Petrel and Leapfrog. Does anyone have strong opinions or experience with these, or perhaps recommend an alternative?"
       },
       {
@@ -132,7 +131,7 @@ export async function seedCommunityPosts() {
         category: "Career & Education",
         upvotes: 210,
         comments: 78,
-        timestamp: Timestamp.fromDate(new Date(Date.now() - 24 * 60 * 60 * 1000)), // 1 day ago
+        timestamp: FieldValue.serverTimestamp(),
         content: "I've been mentoring a few recent grads and the job market can be tough. My top tips are: 1) Get proficient with GIS software (like QGIS), 2) Network relentlessly on LinkedIn, and 3) Tailor your resume for EVERY single application. What other advice would you give?"
       },
       {
@@ -141,35 +140,35 @@ export async function seedCommunityPosts() {
         category: "General Discussion",
         upvotes: 45,
         comments: 112,
-        timestamp: Timestamp.fromDate(new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)), // 2 days ago
+        timestamp: FieldValue.serverTimestamp(),
         content: "From a planetary geology perspective, the 'clearing its orbital neighborhood' requirement is problematic. Pluto has a complex geology with mountains, glaciers, and a potential subsurface ocean. Isn't that enough to be considered a planet? Let's discuss."
       },
     ];
 
     samplePosts.forEach(post => {
-      const docRef = doc(collection(db, 'community-posts'));
+      const docRef = postsCollection.doc();
       batch.set(docRef, post);
     });
 
     await batch.commit();
     revalidatePath('/community');
-
+    return { success: true, message: 'Sample posts added successfully.' };
   } catch (error) {
     console.error("Error seeding posts: ", error);
+    return { success: false, message: 'An error occurred while seeding posts.' };
   }
 }
 
 export async function seedResources() {
-  const resourcesCollection = collection(db, 'resources');
+  const resourcesCollection = adminDb.collection('resources');
 
   try {
-    const q = query(resourcesCollection, limit(1));
-    const snapshot = await getDocs(q);
+    const snapshot = await resourcesCollection.limit(1).get();
     if (!snapshot.empty) {
       return { success: false, message: "Sample resources have already been added." };
     }
 
-    const batch = writeBatch(db);
+    const batch = adminDb.batch();
 
     const sampleResources = [
       {
@@ -211,7 +210,7 @@ export async function seedResources() {
     ];
 
     sampleResources.forEach(resource => {
-      const docRef = doc(collection(db, 'resources'));
+      const docRef = resourcesCollection.doc();
       batch.set(docRef, resource);
     });
 
@@ -226,16 +225,15 @@ export async function seedResources() {
 }
 
 export async function seedExpertQuestions() {
-  const questionsCollection = collection(db, 'expert-questions');
+  const questionsCollection = adminDb.collection('expert-questions');
 
   try {
-    const q = query(questionsCollection, limit(1));
-    const snapshot = await getDocs(q);
+    const snapshot = await questionsCollection.limit(1).get();
     if (!snapshot.empty) {
       return { success: false, message: "Sample questions have already been added." };
     }
 
-    const batch = writeBatch(db);
+    const batch = adminDb.batch();
 
     const sampleQuestions = [
       {
@@ -248,7 +246,7 @@ export async function seedExpertQuestions() {
           avatar: "https://placehold.co/100x100.png?text=ER",
         },
         answerPreview: "Key indicators include tension cracks, bulging ground at the base of a slope, and unusual spring or seep activity. Monitoring ground movement with inclinometers is crucial...",
-        timestamp: Timestamp.fromDate(new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)), // 2 days ago
+        timestamp: FieldValue.serverTimestamp(),
       },
       {
         title: "How can I differentiate between quartzite and marble in the field?",
@@ -260,18 +258,18 @@ export async function seedExpertQuestions() {
           avatar: "https://placehold.co/100x100.png?text=BC",
         },
         answerPreview: "The simplest field test is the acid test. Marble (calcite) will fizz when a drop of dilute hydrochloric acid is applied, while quartzite will not react. Hardness is another clue; quartzite is harder than a steel knife blade, while marble is softer.",
-        timestamp: Timestamp.fromDate(new Date(Date.now() - 5 * 24 * 60 * 60 * 1000)), // 5 days ago
+        timestamp: FieldValue.serverTimestamp(),
       },
       {
         title: "What is the significance of the K-T boundary?",
         author: "Fatima Al-Sayed",
         status: "Awaiting Answer",
-        timestamp: Timestamp.now(),
+        timestamp: FieldValue.serverTimestamp(),
       },
     ];
 
     sampleQuestions.forEach(question => {
-      const docRef = doc(collection(db, 'expert-questions'));
+      const docRef = questionsCollection.doc();
       batch.set(docRef, question);
     });
 
