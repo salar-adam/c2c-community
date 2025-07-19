@@ -1,18 +1,19 @@
-import "server-only"
+'use server';
 import * as admin from 'firebase-admin';
-import serviceAccount from './firebase-service-account.json';
 
-console.log('firebase-admin:', admin);
-console.log('firebase-admin.apps:', admin.apps);
+const serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT
+  ? JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT)
+  : undefined;
 
-// Check if the app is already initialized
 if (!admin.apps.length) {
+  if (serviceAccount) {
     admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount as admin.ServiceAccount)
+      credential: admin.credential.cert(serviceAccount),
     });
-} else {
-    // If already initialized, use the existing app
-    admin.app();
+  } else {
+    // In a managed environment like App Hosting, it uses Application Default Credentials
+    admin.initializeApp();
+  }
 }
 
 export const adminDb = admin.firestore();
