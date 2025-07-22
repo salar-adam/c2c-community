@@ -89,6 +89,46 @@ const myths = [
     question: "Myth: Earth's magnetic poles are fixed.",
     answer: "Fact: The magnetic poles are constantly wandering. Furthermore, geological evidence in rocks shows that the Earth's magnetic field has completely flipped its polarity hundreds of times over its history. These magnetic reversals are a normal, albeit slow, geological process.",
   },
+  {
+    id: "myth-17",
+    question: "Myth: Seafloor spreading is pushing the continents apart at a rapid rate.",
+    answer: "Fact: While seafloor spreading is a key mechanism of plate tectonics, it's a very slow process. The average rate is comparable to the speed at which fingernails grow, typically a few centimeters per year. It is not a rapid, dramatic push but a slow, steady geological force.",
+  },
+  {
+    id: "myth-18",
+    question: "Myth: Quicksand pulls you under.",
+    answer: "Fact: Quicksand is just ordinary sand that has been oversaturated with water, creating a liquefied soil. Humans are less dense than quicksand, so you would float on it rather than being pulled under. The danger comes from struggling, which can cause you to sink further, and the difficulty of extraction.",
+  },
+  {
+    id: "myth-19",
+    question: "Myth: Fossils are the actual bones of dinosaurs.",
+    answer: "Fact: Fossils are not bones but are mineralized replicas. Over millions of years, the organic material of the bone dissolves and is replaced by minerals from groundwater, a process called permineralization. This creates a rock-like cast of the original bone.",
+  },
+  {
+    id: "myth-20",
+    question: "Myth: The Ice Age was a single, continuous period of cold.",
+    answer: "Fact: The most recent Ice Age, the Pleistocene Epoch, was characterized by multiple cycles of advancing and retreating ice sheets, known as glacial and interglacial periods. We are currently in an interglacial period within the larger Quaternary Ice Age.",
+  },
+  {
+    id: "myth-21",
+    question: "Myth: Mountains are permanent, unchanging features of the landscape.",
+    answer: "Fact: Mountains are constantly changing. Tectonic forces push them upwards, while erosion from wind, water, and ice wears them down. The Appalachian Mountains, for example, were once as tall as the Himalayas but have been eroded over hundreds of millions of years.",
+  },
+  {
+    id: "myth-22",
+    question: "Myth: Oil is composed of decayed dinosaurs.",
+    answer: "Fact: This is a popular cartoon trope but is incorrect. Petroleum (oil and natural gas) is primarily formed from the remains of ancient marine organisms, like algae and plankton, that were buried in seabeds millions of years ago and subjected to heat and pressure.",
+  },
+  {
+    id: "myth-23",
+    question: "Myth: All rocks are hard and strong.",
+    answer: "Fact: The hardness of rocks varies greatly. While rocks like granite and quartzite are very hard, others like shale, soapstone, or talc are very soft and can be scratched with a fingernail. Hardness is a key diagnostic property for geologists.",
+  },
+  {
+    id: "myth-24",
+    question: "Myth: Tsunamis are just giant waves, like you see at the beach.",
+    answer: "Fact: A tsunami is not a single breaking wave but a series of waves with a very long wavelength, often called a wave train. In the open ocean, it might not even be noticeable. Its destructive power is unleashed as it approaches shallow water, causing a rapid rise in sea level over a large area, more like a fast-moving tide than a wind-driven wave.",
+  }
 ]
 
 export default function GeoMythsPage() {
