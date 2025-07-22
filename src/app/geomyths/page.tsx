@@ -90,7 +90,7 @@ const myths = [
     question: "Myth: Earth's magnetic poles are fixed.",
     answer: "Fact: The magnetic poles are constantly wandering. Furthermore, geological evidence in rocks shows that the Earth's magnetic field has completely flipped its polarity hundreds of times over its history. These magnetic reversals are a normal, albeit slow, geological process.",
   },
-  {
+    {
     id: "myth-17",
     question: "Myth: Seafloor spreading is pushing the continents apart at a rapid rate.",
     answer: "Fact: While seafloor spreading is a key mechanism of plate tectonics, it's a very slow process. The average rate is comparable to the speed at which fingernails grow, typically a few centimeters per year. It is not a rapid, dramatic push but a slow, steady geological force.",
@@ -130,7 +130,7 @@ const myths = [
     question: "Myth: Tsunamis are just giant waves, like you see at the beach.",
     answer: "Fact: A tsunami is not a single breaking wave but a series of waves with a very long wavelength, often called a wave train. In the open ocean, it might not even be noticeable. Its destructive power is unleashed as it approaches shallow water, causing a rapid rise in sea level over a large area, more like a fast-moving tide than a wind-driven wave.",
   },
-  {
+    {
     id: "myth-25",
     question: "Myth: Water spirals down drains differently in the Northern and Southern Hemispheres due to the Coriolis effect.",
     answer: "Fact: The Coriolis effect is real and affects large-scale systems like hurricanes, but it's far too weak to influence the direction of water in a sink or toilet. The direction is determined by the shape of the basin and other minor variables, not the Earth's rotation.",
@@ -169,6 +169,46 @@ const myths = [
     id: "myth-32",
     question: "Myth: An earthquake of a certain magnitude releases a specific amount of energy.",
     answer: "Fact: The moment magnitude scale is logarithmic. For each whole number you go up on the scale, the seismic energy released increases by about 32 times. So, a magnitude 7.0 earthquake releases about 32 times more energy than a 6.0 and over 1,000 times more than a 5.0.",
+  },
+  {
+    id: "myth-33",
+    question: "Myth: The Earth is a solid ball of rock.",
+    answer: "Fact: The Earth has a complex layered structure. It includes a liquid outer core made of iron and nickel, a solid inner core, a semi-molten mantle on which tectonic plates float, and finally the crust. It's far from being solid all the way through.",
+  },
+  {
+    id: "myth-34",
+    question: "Myth: Meteorites are easy to find because they're all magnetic.",
+    answer: "Fact: While many meteorites, especially iron meteorites, are magnetic, stony meteorites (the most common type) are only weakly magnetic or not at all. Also, many terrestrial (Earth) rocks are magnetic, so a magnet is not a foolproof test for identifying meteorites.",
+  },
+  {
+    id: "myth-35",
+    question: "Myth: All fossils are from dinosaurs.",
+    answer: "Fact: Fossils preserve the history of all life on Earth, not just dinosaurs. The fossil record is rich with plants, insects, fish, shells (like ammonites), and countless other mammals and invertebrates from every geological era.",
+  },
+  {
+    id: "myth-36",
+    question: "Myth: The Bermuda Triangle's mysteries are due to geologic anomalies.",
+    answer: "Fact: Scientific investigations, including those by the U.S. Coast Guard and NOAA, have found no evidence of unusual geological or magnetic phenomena. The 'mysteries' are a combination of fiction, exaggeration, and the natural dangers of a high-traffic area prone to hurricanes.",
+  },
+  {
+    id: "myth-37",
+    question: "Myth: Oil is found in large underground pools or caverns.",
+    answer: "Fact: This is a common image, but it's incorrect. Oil and natural gas are typically trapped within the tiny pore spaces of rocks like sandstone, limestone, or shale. The rock acts like a sponge, holding the hydrocarbons within its matrix.",
+  },
+  {
+    id: "myth-38",
+    question: "Myth: The Earth's crust is a single, solid shell.",
+    answer: "Fact: The crust (the lithosphere) is broken into a mosaic of large tectonic plates. These plates are in constant, slow motion, grinding past each other, colliding, or pulling apart. This movement is the primary driver for earthquakes, volcanoes, and mountain formation.",
+  },
+  {
+    id: "myth-39",
+    question: "Myth: You can tell a diamond is real if it scratches glass.",
+    answer: "Fact: While diamonds can easily scratch glass, so can many other materials. Quartz, a very common mineral, is harder than most glass. Using this test alone could lead you to believe a piece of quartz is a diamond. Gemologists use a combination of tests, including thermal conductivity, to identify diamonds.",
+  },
+  {
+    id: "myth-40",
+    question: "Myth: Geologic time is just a theory, and the Earth is a few thousand years old.",
+    answer: "Fact: Multiple, independent lines of scientific evidence confirm the Earth's vast age. Radiometric dating of rocks (like Uranium-Lead dating), analysis of glacial ice cores, tree ring data, and the observable layers in geology all consistently point to an Earth that is approximately 4.5 billion years old.",
   },
 ]
 
