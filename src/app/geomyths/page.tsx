@@ -49,6 +49,46 @@ const myths = [
     question: "Myth: Glass is a slow-moving liquid.",
     answer: "Fact: While old church windowpanes are sometimes thicker at the bottom, this is due to imperfect manufacturing processes of the past, not because the glass has flowed downwards over centuries. At room temperature, glass is a true amorphous solid. It doesn't flow, even over geological timescales.",
   },
+  {
+    id: "myth-9",
+    question: "Myth: Lightning never strikes the same place twice.",
+    answer: "Fact: Lightning often strikes the same place repeatedly, especially tall, conductive objects like skyscrapers (the Empire State Building is hit about 23 times a year), mountains, or specific geological formations. The probability is simply higher for certain locations.",
+  },
+  {
+    id: "myth-10",
+    question: "Myth: All deserts are hot and sandy.",
+    answer: "Fact: A desert is defined by its lack of precipitation, not its temperature. The largest desert in the world is actually the Antarctic Polar Desert, a cold desert. Deserts can be rocky, icy, or mountainous, and sandy areas (ergs) make up only about 20% of the world's deserts.",
+  },
+  {
+    id: "myth-11",
+    question: "Myth: The Earth is a perfect sphere.",
+    answer: "Fact: The Earth is an oblate spheroid. Due to its rotation, it bulges at the equator and is slightly flattened at the poles. The diameter at the equator is about 43 kilometers (27 miles) larger than the pole-to-pole diameter.",
+  },
+  {
+    id: "myth-12",
+    question: "Myth: Gold is only found in large nuggets.",
+    answer: "Fact: While large gold nuggets are famous, most of the world's gold is found as microscopic particles, often disseminated within rock (like quartz) or mixed with other minerals. Discovering a large nugget is an extremely rare event.",
+  },
+  {
+    id: "myth-13",
+    question: "Myth: You can find water by dowsing with a forked stick.",
+    answer: "Fact: There is no scientific evidence to support water dowsing. Numerous controlled studies have shown that dowsers' success rates are no better than random chance. Hydrogeologists use scientific methods, such as studying rock formations and using geophysical surveys, to locate groundwater.",
+  },
+  {
+    id: "myth-14",
+    question: "Myth: The Earth's core is solid iron.",
+    answer: "Fact: The Earth's core has two parts: a solid inner core and a liquid outer core. The inner core is a solid ball of an iron-nickel alloy, while the outer core is a molten layer of the same metals. The movement of this liquid outer core is what generates the Earth's magnetic field.",
+  },
+  {
+    id: "myth-15",
+    question: "Myth: All radiation is man-made and dangerous.",
+    answer: "Fact: The Earth is naturally radioactive. Background radiation comes from cosmic rays from space and the natural decay of radioactive elements in rocks and soil (like uranium and thorium). This natural radiation accounts for the majority of the average person's annual exposure.",
+  },
+  {
+    id: "myth-16",
+    question: "Myth: Earth's magnetic poles are fixed.",
+    answer: "Fact: The magnetic poles are constantly wandering. Furthermore, geological evidence in rocks shows that the Earth's magnetic field has completely flipped its polarity hundreds of times over its history. These magnetic reversals are a normal, albeit slow, geological process.",
+  },
 ]
 
 export default function GeoMythsPage() {
