@@ -16,6 +16,7 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import { toggleUpvote } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import Image from 'next/image';
 
 interface Post {
     id: string;
@@ -30,6 +31,8 @@ interface Post {
     comments: number;
     timestamp: Date;
     content?: string;
+    fileUrl?: string;
+    fileType?: string;
 }
 
 interface Comment {
@@ -79,6 +82,8 @@ export default function PostPage() {
                     comments: data.comments,
                     timestamp: (data.timestamp as Timestamp)?.toDate() || new Date(),
                     content: data.content,
+                    fileUrl: data.fileUrl,
+                    fileType: data.fileType,
                 });
                 setError(null);
             } else {
@@ -221,6 +226,19 @@ export default function PostPage() {
                 <CardContent className="space-y-4">
                     <Badge variant="secondary">{post.category}</Badge>
                     <p className="text-lg whitespace-pre-wrap">{post.content}</p>
+
+                    {post.fileUrl && (
+                        <div className="mt-4">
+                            {post.fileType?.startsWith('image/') ? (
+                                <Image src={post.fileUrl} alt="Post attachment" width={600} height={400} className="rounded-lg object-cover" />
+                            ) : post.fileType?.startsWith('video/') ? (
+                                <video src={post.fileUrl} controls className="w-full rounded-lg"></video>
+                            ) : (
+                                <a href={post.fileUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">View Attached File</a>
+                            )}
+                        </div>
+                    )}
+                    
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
                         <Button
                             variant="ghost"

@@ -1,12 +1,13 @@
 "use client"
 
-import { useState, useEffect, useTransition, useRef } from "react"
+import { useState, useEffect, useTransition, useRef, ChangeEvent } from "react"
 import Link from 'next/link';
+import Image from "next/image"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { MessageSquare, PlusCircle, ThumbsUp, Loader2, User, DatabaseZap } from "lucide-react"
+import { MessageSquare, PlusCircle, ThumbsUp, Loader2, User, DatabaseZap, UploadCloud } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 import { createCommunityPost, seedCommunityPosts } from "@/app/actions"
 import { useToast } from "@/hooks/use-toast"
@@ -230,6 +231,22 @@ function CreatePostDialog() {
     const { toast } = useToast();
     const [user] = useAuthState(auth);
     const formRef = useRef<HTMLFormElement>(null);
+    const [filePreview, setFilePreview] = useState<string | null>(null);
+    
+    const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        if (file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setFilePreview(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+        } else {
+            setFilePreview(file.name);
+        }
+      }
+    };
     
     const handleSubmit = async (formData: FormData) => {
         if (!user) {
@@ -242,6 +259,7 @@ function CreatePostDialog() {
             if (result.success) {
                 toast({ title: "Success", description: result.message });
                 formRef.current?.reset();
+                setFilePreview(null);
                 setOpen(false);
             } else {
                 toast({ variant: "destructive", title: "Error", description: result.message || "An unexpected error occurred." });
@@ -250,14 +268,14 @@ function CreatePostDialog() {
     }
 
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={(isOpen) => { if (!isOpen) { formRef.current?.reset(); setFilePreview(null); } setOpen(isOpen);}}>
             <DialogTrigger asChild>
                 <Button>
                     <PlusCircle className="mr-2 h-4 w-4" />
                     Create Post
                 </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="sm:max-w-[625px]">
                 <DialogHeader>
                     <DialogTitle>Create a New Post</DialogTitle>
                     <DialogDescription>
@@ -289,6 +307,29 @@ function CreatePostDialog() {
                     <div className="space-y-2">
                         <Label htmlFor="content">Content</Label>
                         <Textarea id="content" name="content" placeholder="Write your post here..." rows={6} required />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="file-upload">Attach File (Image/Video)</Label>
+                         <Input id="file-upload" name="file" type="file" className="hidden" onChange={handleFileChange} />
+                         <label htmlFor="file-upload" className="cursor-pointer">
+                            <div className="w-full aspect-video border-2 border-dashed rounded-lg flex items-center justify-center bg-secondary/50 text-muted-foreground">
+                                {filePreview ? (
+                                    filePreview.startsWith('data:image/') ? (
+                                        <Image src={filePreview} alt="File preview" layout="fill" className="object-contain rounded-md" />
+                                    ) : (
+                                        <div className="text-center">
+                                            <p>File selected:</p>
+                                            <p className="font-semibold">{filePreview}</p>
+                                        </div>
+                                    )
+                                ) : (
+                                    <div className="text-center">
+                                        <UploadCloud className="mx-auto h-10 w-10" />
+                                        <p>Click to upload an image or video</p>
+                                    </div>
+                                )}
+                            </div>
+                        </label>
                     </div>
                     <DialogFooter>
                         <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>

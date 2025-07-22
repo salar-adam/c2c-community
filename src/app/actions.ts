@@ -1,7 +1,8 @@
 'use client';
 
-import { db, auth } from '@/lib/firebase';
+import { db, auth, storage } from '@/lib/firebase';
 import { doc, updateDoc, arrayRemove, arrayUnion, increment, collection, addDoc, serverTimestamp, getDoc, runTransaction } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 export async function toggleUpvote(postId: string, userId: string) {
     if (!userId) {
@@ -27,8 +28,6 @@ export async function toggleUpvote(postId: string, userId: string) {
                 upvotes: increment(1),
             });
         }
-        // This is a client-side action, so we can't use revalidatePath.
-        // The change will be reflected by onSnapshot listener on the page.
         return { success: true, message: "Upvote toggled." };
     } catch (error: any) {
         console.error('Error toggling upvote: ', error);
@@ -47,11 +46,28 @@ export async function createCommunityPost(formData: FormData) {
         title: formData.get('title') as string,
         category: formData.get('category') as string,
         content: formData.get('content') as string,
+        file: formData.get('file') as File,
     };
 
     if (!post.title || !post.category || !post.content) {
         return { success: false, message: "Please fill out all fields." };
     }
+
+    let fileUrl = '';
+    let fileType = '';
+
+    if (post.file && post.file.size > 0) {
+        const storageRef = ref(storage, `community-files/${user.uid}/${Date.now()}_${post.file.name}`);
+        try {
+            const snapshot = await uploadBytes(storageRef, post.file);
+            fileUrl = await getDownloadURL(snapshot.ref);
+            fileType = post.file.type;
+        } catch (error: any) {
+            console.error("Error uploading file:", error);
+            return { success: false, message: `Failed to upload file: ${error.message}` };
+        }
+    }
+
 
     try {
         await addDoc(collection(db, 'community-posts'), {
@@ -63,6 +79,8 @@ export async function createCommunityPost(formData: FormData) {
             title: post.title,
             category: post.category,
             content: post.content,
+            fileUrl,
+            fileType,
             upvotes: 0,
             upvotedBy: [],
             comments: 0,
