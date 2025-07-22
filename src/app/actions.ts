@@ -1,3 +1,4 @@
+
 'use client';
 
 import { db, auth } from '@/lib/firebase';
@@ -177,38 +178,6 @@ export async function seedCommunityPosts() {
         console.error("Error seeding posts:", error);
         return { success: false, message: `Error seeding posts: ${error.message}` };
     }
-}
-
-export async function seedResources() {
-  const resources = [
-    {
-      title: "Geological Survey Maps Database",
-      description: "Access high-resolution geological maps from surveys conducted worldwide.",
-      type: "Database",
-      icon: "Database"
-    },
-    {
-      title: "Introduction to Petrology",
-      description: "A foundational research paper on the classification and analysis of rock types.",
-      type: "Research Paper",
-      icon: "FileText"
-    },
-    {
-      title: "Virtual Field Trip: The Rocky Mountains",
-      description: "An immersive video series exploring the geological formations of the Rockies.",
-      type: "Video Series",
-      icon: "Video"
-    },
-  ];
-  try {
-    for (const resource of resources) {
-      await addDoc(collection(db, "resources"), resource);
-    }
-    return { success: true, message: "Sample resources have been seeded!" };
-  } catch (error: any) {
-    console.error("Error seeding resources:", error);
-    return { success: false, message: `Error seeding resources: ${error.message}` };
-  }
 }
 
 export async function seedExpertQuestions() {
