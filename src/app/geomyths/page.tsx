@@ -129,7 +129,47 @@ const myths = [
     id: "myth-24",
     question: "Myth: Tsunamis are just giant waves, like you see at the beach.",
     answer: "Fact: A tsunami is not a single breaking wave but a series of waves with a very long wavelength, often called a wave train. In the open ocean, it might not even be noticeable. Its destructive power is unleashed as it approaches shallow water, causing a rapid rise in sea level over a large area, more like a fast-moving tide than a wind-driven wave.",
-  }
+  },
+  {
+    id: "myth-25",
+    question: "Myth: Water spirals down drains differently in the Northern and Southern Hemispheres due to the Coriolis effect.",
+    answer: "Fact: The Coriolis effect is real and affects large-scale systems like hurricanes, but it's far too weak to influence the direction of water in a sink or toilet. The direction is determined by the shape of the basin and other minor variables, not the Earth's rotation.",
+  },
+  {
+    id: "myth-26",
+    question: "Myth: The seasons are caused by the Earth being closer to the Sun.",
+    answer: "Fact: The seasons are caused by the 23.5-degree tilt of the Earth's axis. When a hemisphere is tilted toward the Sun, it receives more direct sunlight, experiencing summer. The Earth is actually closest to the Sun in early January, during the Northern Hemisphere's winter.",
+  },
+  {
+    id: "myth-27",
+    question: "Myth: All caves are formed by underground rivers.",
+    answer: "Fact: While many caves (karst caves) are formed by water dissolving limestone, other types exist. Lava tubes are formed by flowing lava, sea caves are carved by waves, and talus caves are spaces between boulders in a rockfall.",
+  },
+  {
+    id: "myth-28",
+    question: "Myth: Geysers shoot out boiling water.",
+    answer: "Fact: The water in a geyser's eruption is hot, but it's often superheated, meaning it's hotter than the normal boiling point. The immense pressure underground prevents it from boiling. As the water rises and pressure drops, it flashes into steam, causing the eruption.",
+  },
+  {
+    id: "myth-29",
+    question: "Myth: The continents float on a sea of molten magma.",
+    answer: "Fact: The continents (lithosphere) float on the asthenosphere, which is not fully molten. It's a solid but ductile (plastically flowing) layer of the upper mantle. Think of it more like very thick, hot tar or silly putty rather than a liquid ocean.",
+  },
+  {
+    id: "myth-30",
+    question: "Myth: You can outrun a pyroclastic flow.",
+    answer: "Fact: You cannot outrun a pyroclastic flow. These are fast-moving currents of hot gas and volcanic matter that can reach speeds of up to 700 km/h (450 mph) and temperatures of up to 1,000 °C (1,830 °F). They are one of the most dangerous volcanic hazards.",
+  },
+  {
+    id: "myth-31",
+    question: "Myth: California will one day fall into the ocean.",
+    answer: "Fact: The San Andreas Fault is a transform fault, where the Pacific Plate is sliding horizontally past the North American Plate. It is not a subduction zone where one plate goes under another. Los Angeles is slowly moving northwest towards San Francisco, but it will not fall into the sea.",
+  },
+  {
+    id: "myth-32",
+    question: "Myth: An earthquake of a certain magnitude releases a specific amount of energy.",
+    answer: "Fact: The moment magnitude scale is logarithmic. For each whole number you go up on the scale, the seismic energy released increases by about 32 times. So, a magnitude 7.0 earthquake releases about 32 times more energy than a 6.0 and over 1,000 times more than a 5.0.",
+  },
 ]
 
 export default function GeoMythsPage() {
