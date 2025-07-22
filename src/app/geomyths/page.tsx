@@ -250,6 +250,46 @@ const myths = [
     question: "Myth: Petrified wood is wood that has turned to stone.",
     answer: "Fact: Petrified wood is a fossil. The process of petrification involves the organic matter of the wood being replaced by minerals over millions of years, while retaining the original cellular structure of the wood. It's a mineral cast of the original wood, not the wood itself.",
   },
+  {
+    id: "myth-49",
+    question: "Myth: Plate tectonics is just a theory, not a fact.",
+    answer: "Fact: In science, a theory is a well-substantiated explanation of some aspect of the natural world, based on a body of facts that have been repeatedly confirmed through observation and experiment. Plate tectonics is the unifying theory of geology, supported by overwhelming evidence from GPS measurements, seafloor mapping, earthquake distribution, and more.",
+  },
+  {
+    id: "myth-50",
+    question: "Myth: You can tell the weather by looking at rocks.",
+    answer: "Fact: While some rocks might feel damp in humid weather, they are not reliable weather indicators. 'Weather rocks' sold in souvenir shops are a novelty. For accurate forecasts, rely on meteorological science and instruments.",
+  },
+  {
+    id: "myth-51",
+    question: "Myth: All meteorites create massive craters.",
+    answer: "Fact: The vast majority of meteorites are small and slow down significantly due to atmospheric drag, often causing little to no cratering. Large, impact-crater-forming events are exceptionally rare. Many meteorites found are just small stones sitting on the surface.",
+  },
+  {
+    id: "myth-52",
+    question: "Myth: The Earth's poles have always been covered in ice.",
+    answer: "Fact: The Earth has gone through long periods with no polar ice caps at all. During the Mesozoic Era (the age of dinosaurs), the climate was much warmer globally, and even the polar regions were home to forests and dinosaurs.",
+  },
+  {
+    id: "myth-53",
+    question: "Myth: Fracking causes most of the earthquakes felt by people.",
+    answer: "Fact: The process of hydraulic fracturing itself rarely causes felt seismic events. However, the disposal of wastewater from fracking and other industrial processes by injecting it deep underground has been linked to an increase in induced seismicity in certain regions.",
+  },
+  {
+    id: "myth-54",
+    question: "Myth: The ocean is blue because it reflects the sky.",
+    answer: "Fact: While some of the ocean's color comes from sky reflection, its intrinsic color is blue. Water preferentially absorbs longer wavelengths of light (reds, oranges, yellows) and scatters shorter wavelengths (blues), so when sunlight penetrates deep into clean water, blue light is scattered back to the observer.",
+  },
+  {
+    id: "myth-55",
+    question: "Myth: Geothermal energy is a new, untested technology.",
+    answer: "Fact: Geothermal power has been used for over a century. The first geothermal power plant was built in Larderello, Italy, in 1904. It's a well-established technology that harnesses the natural heat of the Earth's interior.",
+  },
+  {
+    id: "myth-56",
+    question: "Myth: You must have a geology degree to be a rockhound.",
+    answer: "Fact: Rockhounding (amateur geology) is a popular hobby for people of all backgrounds. With a good field guide, respect for land access rules, and a sense of curiosity, anyone can enjoy collecting rocks, minerals, and fossils.",
+  },
 ]
 
 export default function GeoMythsPage() {
@@ -279,3 +319,5 @@ export default function GeoMythsPage() {
     </div>
   )
 }
+
+    
