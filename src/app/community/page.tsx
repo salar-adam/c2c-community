@@ -1,11 +1,11 @@
 "use client"
 
-import { useState, useEffect, useTransition } from "react" // Added useTransition back
+import { useState, useEffect, useTransition, useRef } from "react"
 import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { MessageSquare, PlusCircle, ThumbsUp, Loader2, User, DatabaseZap } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 import { createCommunityPost, seedCommunityPosts } from "@/app/actions"
@@ -15,9 +15,10 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { db } from "@/lib/firebase"
+import { db, auth } from "@/lib/firebase"
 import { collection, Timestamp, query, orderBy, onSnapshot } from "firebase/firestore"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useAuthState } from "react-firebase-hooks/auth";
 
 const channels = [
     { name: "General Discussion", color: "bg-blue-500" },
@@ -119,9 +120,9 @@ export default function CommunityPage() {
         );
     }
     return postsToList.map(post => (
-        <Link key={post.id} href={`/community/${post.id}`}>
-            <div className="block">
-                <div className="flex items-start gap-4 p-4 border rounded-lg hover:bg-secondary/50 transition-colors cursor-pointer">
+        <Link key={post.id} href={`/community/${post.id}`} passHref>
+            <div className="block p-4 border rounded-lg hover:bg-secondary/50 transition-colors cursor-pointer">
+                <div className="flex items-start gap-4">
                    <Avatar>
                         {post.author ? (
                             <>
@@ -134,7 +135,6 @@ export default function CommunityPage() {
                    </Avatar>
                    <div className="flex-1">
                         <h3 className="font-semibold text-lg leading-tight">{post.title}</h3>
-                        <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{post.content}</p>
                         <div className="text-sm text-muted-foreground mt-2">
                             Posted by {post.author?.name || "Unknown Author"} &bull; {post.timestamp ? formatDistanceToNow(post.timestamp, { addSuffix: true }) : '...'}
                         </div>
@@ -228,12 +228,20 @@ function CreatePostDialog() {
     const [open, setOpen] = useState(false);
     const [isPending, startTransition] = useTransition();
     const { toast } = useToast();
+    const [user] = useAuthState(auth);
+    const formRef = useRef<HTMLFormElement>(null);
     
     const handleSubmit = async (formData: FormData) => {
+        if (!user) {
+            toast({ variant: "destructive", title: "Not Logged In", description: "You must be logged in to create a post." });
+            return;
+        }
+
         startTransition(async () => {
             const result = await createCommunityPost(formData);
             if (result.success) {
                 toast({ title: "Success", description: result.message });
+                formRef.current?.reset();
                 setOpen(false);
             } else {
                 toast({ variant: "destructive", title: "Error", description: result.message || "An unexpected error occurred." });
@@ -257,6 +265,7 @@ function CreatePostDialog() {
                     </DialogDescription>
                 </DialogHeader>
                 <form 
+                    ref={formRef}
                     action={handleSubmit}
                     className="space-y-4"
                 >
@@ -283,7 +292,7 @@ function CreatePostDialog() {
                     </div>
                     <DialogFooter>
                         <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
-                        <Button type="submit" disabled={isPending}>
+                        <Button type="submit" disabled={isPending || !user}>
                             {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             Submit Post
                         </Button>

@@ -3,7 +3,7 @@
 
 import { useEffect, useState, useTransition } from 'react';
 import { useParams } from 'next/navigation';
-import { doc, getDoc, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot, Timestamp } from 'firebase/firestore';
+import { doc, getDoc, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot, Timestamp, updateDoc, increment } from 'firebase/firestore';
 import { db, auth } from '@/lib/firebase';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -143,6 +143,12 @@ export default function PostPage() {
                 content: newComment,
                 timestamp: serverTimestamp(),
             });
+            
+            const postDocRef = doc(db, 'community-posts', postId as string);
+            await updateDoc(postDocRef, {
+                comments: increment(1)
+            });
+
             setNewComment('');
         } catch (error) {
             console.error('Error adding comment:', error);
@@ -214,7 +220,7 @@ export default function PostPage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <Badge variant="secondary">{post.category}</Badge>
-                    <p className="text-lg">{post.content}</p>
+                    <p className="text-lg whitespace-pre-wrap">{post.content}</p>
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
                         <Button
                             variant="ghost"
@@ -256,7 +262,7 @@ export default function PostPage() {
                                             </Avatar>
                                             <div>
                                                 <div className="font-semibold text-sm">{comment.author?.name || "Unknown User"}</div>
-                                                <p className="text-sm text-muted-foreground">{comment.content}</p>
+                                                <p className="text-sm text-muted-foreground whitespace-pre-wrap">{comment.content}</p>
                                                 <div className="text-xs text-muted-foreground mt-1">{comment.timestamp ? formatDistanceToNow(comment.timestamp, { addSuffix: true }) : '...'}</div>
                                             </div>
                                         </div>
@@ -295,5 +301,3 @@ export default function PostPage() {
         </div>
     );
 }
-
-    
