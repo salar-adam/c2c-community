@@ -290,6 +290,86 @@ const myths = [
     question: "Myth: You must have a geology degree to be a rockhound.",
     answer: "Fact: Rockhounding (amateur geology) is a popular hobby for people of all backgrounds. With a good field guide, respect for land access rules, and a sense of curiosity, anyone can enjoy collecting rocks, minerals, and fossils.",
   },
+  {
+    id: "myth-57",
+    question: "Myth: An active volcano is always smoking.",
+    answer: "Fact: A volcano can be active, meaning it is expected to erupt again, without constantly emitting steam or gas (smoking). Many active volcanoes have long periods of quiet. The 'smoke' is typically steam and other volcanic gases, and its presence or absence is not a definitive sign of an imminent eruption.",
+  },
+  {
+    id: "myth-58",
+    question: "Myth: All crystals are perfectly formed and symmetrical.",
+    answer: "Fact: The beautifully symmetrical crystals seen in museums are rare. In nature, crystals often grow in crowded, confined spaces, resulting in distorted or incomplete shapes. A perfect crystal form requires unrestricted growth, which is not common in geological environments.",
+  },
+  {
+    id: "myth-59",
+    question: "Myth: Standing in a doorway is the safest place during an earthquake.",
+    answer: "Fact: This is outdated advice from the days of unreinforced masonry buildings. In modern homes, doorways are not stronger than other parts of the house. The safest action is to 'Drop, Cover, and Hold On' under a sturdy piece of furniture like a table or desk.",
+  },
+  {
+    id: "myth-60",
+    question: "Myth: Beach sand is made of tiny, ground-up seashells.",
+    answer: "Fact: While some tropical white sand beaches are composed of eroded coral and shells (calcium carbonate), most of the world's beach sand is made of quartz. This durable mineral survives erosion and transportation by rivers from inland mountains to the coast.",
+  },
+  {
+    id: "myth-61",
+    question: "Myth: The Earth's magnetic field protects us from asteroids.",
+    answer: "Fact: The magnetic field (magnetosphere) protects us from the solar wind and charged cosmic particles. It has no effect on the trajectory of asteroids or meteoroids, which are non-charged bodies governed by gravity.",
+  },
+  {
+    id: "myth-62",
+    question: "Myth: Natural gas is a 'clean' energy source with no environmental impact.",
+    answer: "Fact: While natural gas burns cleaner than coal, releasing less CO2, it is primarily methane, a potent greenhouse gas. Methane can leak during extraction, transport, and use, contributing significantly to global warming. The extraction process (fracking) also has its own environmental concerns.",
+  },
+  {
+    id: "myth-63",
+    question: "Myth: A scientific 'law' is absolute and can never be changed.",
+    answer: "Fact: A scientific law is a description of an observed phenomenon, often expressed mathematically (e.g., the law of gravity). It doesn't explain *why* it exists. A theory, on the other hand, is the explanation. Laws can be refined or modified if new data shows they don't hold true under all conditions.",
+  },
+  {
+    id: "myth-64",
+    question: "Myth: Jade is a single type of mineral.",
+    answer: "Fact: 'Jade' is actually a name for two different silicate minerals: nephrite (a variety of amphibole) and jadeite (a pyroxene). Both are extremely tough and have been prized for carving for centuries, but they have different chemical compositions and crystal structures.",
+  },
+  {
+    id: "myth-65",
+    question: "Myth: Continental drift and plate tectonics are the same thing.",
+    answer: "Fact: Continental drift was an early hypothesis by Alfred Wegener that the continents moved over time, but he couldn't explain how. Plate tectonics is the well-supported scientific theory that explains *how* they move: the Earth's lithosphere is broken into plates that move on the asthenosphere, driven by convection currents in the mantle.",
+  },
+  {
+    id: "myth-66",
+    question: "Myth: The center of the Earth is incredibly hot, liquid magma.",
+    answer: "Fact: While the core is incredibly hot, the inner core is solid due to immense pressure, despite being hotter than the liquid outer core. Magma is molten rock found in the mantle and crust, not the core, which is made of an iron-nickel alloy.",
+  },
+  {
+    id: "myth-67",
+    question: "Myth: If you fall into a volcano, you'll sink into lava like it's water.",
+    answer: "Fact: Lava is molten rock and is extremely dense, much denser than a human body. You would not sink. Instead, you would stay on the surface of the lava flow, where you would unfortunately be incinerated instantly due to the extreme heat.",
+  },
+  {
+    id: "myth-68",
+    question: "Myth: 'Fool's Gold' (pyrite) is worthless.",
+    answer: "Fact: While it's not gold, pyrite (iron sulfide) is not worthless. It can be a source of sulfur for producing sulfuric acid and is sometimes found in association with actual gold deposits, making it an indicator mineral for prospectors.",
+  },
+  {
+    id: "myth-69",
+    question: "Myth: All underground water is pure and safe to drink.",
+    answer: "Fact: Groundwater can be contaminated by natural sources (like arsenic from certain rock types) or human activities (like industrial waste, pesticides, or septic systems). It should always be tested before being considered safe for consumption.",
+  },
+  {
+    id: "myth-70",
+    question: "Myth: Geologists can use the Earth's magnetic field to find oil.",
+    answer: "Fact: Magnetic surveys (magnetometry) are used in geology, but not to directly detect oil. They are used to map variations in the Earth's magnetic field caused by different rock types in the crust, which can help geologists understand the underlying geological structures where oil might be trapped.",
+  },
+  {
+    id: "myth-71",
+    question: "Myth: Carbon dating can be used to date dinosaurs.",
+    answer: "Fact: Carbon-14 has a relatively short half-life (5,730 years), making it useful for dating organic materials up to about 50,000 years old. Dinosaurs lived millions of years ago, so their fossils are far too old for carbon dating. Geologists use other radiometric dating methods, like uranium-lead dating of volcanic layers above or below the fossils, to determine their age.",
+  },
+  {
+    id: "myth-72",
+    question: "Myth: Mountain ranges are formed by the Earth wrinkling as it cooled.",
+    answer: "Fact: This was an old theory that has been disproven. Major mountain ranges are primarily formed by plate tectonics. For example, the Himalayas are being pushed up by the collision of the Indian and Eurasian plates, and the Andes are formed by the subduction of the Nazca Plate beneath the South American Plate.",
+  },
 ]
 
 export default function GeoMythsPage() {
@@ -319,5 +399,3 @@ export default function GeoMythsPage() {
     </div>
   )
 }
-
-    
