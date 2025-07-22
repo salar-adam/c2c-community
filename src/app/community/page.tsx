@@ -233,21 +233,35 @@ function CreatePostDialog() {
     const [user] = useAuthState(auth);
     const formRef = useRef<HTMLFormElement>(null);
     const [filePreview, setFilePreview] = useState<string | null>(null);
+    const [fileName, setFileName] = useState<string | null>(null);
     
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
+      if (filePreview) {
+          URL.revokeObjectURL(filePreview);
+      }
       if (file) {
         if (file.type.startsWith('image/')) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setFilePreview(reader.result as string);
-            };
-            reader.readAsDataURL(file);
+            setFilePreview(URL.createObjectURL(file));
+            setFileName(null);
         } else {
-            setFilePreview(file.name);
+            setFilePreview(null);
+            setFileName(file.name);
         }
+      } else {
+        setFilePreview(null);
+        setFileName(null);
       }
     };
+
+    const cleanup = () => {
+        formRef.current?.reset();
+        if (filePreview) {
+            URL.revokeObjectURL(filePreview);
+        }
+        setFilePreview(null);
+        setFileName(null);
+    }
     
     const handleSubmit = async (formData: FormData) => {
         if (!user) {
@@ -259,8 +273,7 @@ function CreatePostDialog() {
             const result = await createCommunityPost(formData);
             if (result.success) {
                 toast({ title: "Success", description: result.message });
-                formRef.current?.reset();
-                setFilePreview(null);
+                cleanup();
                 setOpen(false);
             } else {
                 toast({ variant: "destructive", title: "Error", description: result.message || "An unexpected error occurred." });
@@ -269,7 +282,7 @@ function CreatePostDialog() {
     }
 
     return (
-        <Dialog open={open} onOpenChange={(isOpen) => { if (!isOpen) { formRef.current?.reset(); setFilePreview(null); } setOpen(isOpen);}}>
+        <Dialog open={open} onOpenChange={(isOpen) => { if (!isOpen) { cleanup(); } setOpen(isOpen);}}>
             <DialogTrigger asChild>
                 <Button>
                     <PlusCircle className="mr-2 h-4 w-4" />
@@ -313,16 +326,14 @@ function CreatePostDialog() {
                         <Label htmlFor="file-upload">Attach File (Image/Video)</Label>
                          <Input id="file-upload" name="file" type="file" className="hidden" onChange={handleFileChange} />
                          <label htmlFor="file-upload" className="cursor-pointer">
-                            <div className="w-full aspect-video border-2 border-dashed rounded-lg flex items-center justify-center bg-secondary/50 text-muted-foreground">
+                            <div className="w-full aspect-video border-2 border-dashed rounded-lg flex items-center justify-center bg-secondary/50 text-muted-foreground relative">
                                 {filePreview ? (
-                                    filePreview.startsWith('data:image/') ? (
-                                        <Image src={filePreview} alt="File preview" layout="fill" className="object-contain rounded-md" />
-                                    ) : (
+                                    <Image src={filePreview} alt="File preview" fill className="object-contain rounded-md" />
+                                ) : fileName ? (
                                         <div className="text-center">
                                             <p>File selected:</p>
-                                            <p className="font-semibold">{filePreview}</p>
+                                            <p className="font-semibold">{fileName}</p>
                                         </div>
-                                    )
                                 ) : (
                                     <div className="text-center">
                                         <UploadCloud className="mx-auto h-10 w-10" />
