@@ -115,6 +115,15 @@ function AddSampleDialog({ open, onOpenChange }: { open: boolean, onOpenChange: 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      if (file.size > 1024 * 1024) { // 1MB limit
+          toast({
+              variant: "destructive",
+              title: "Image too large",
+              description: "Please select an image smaller than 1MB."
+          });
+          e.target.value = ""; // Reset file input
+          return;
+      }
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
@@ -130,13 +139,16 @@ function AddSampleDialog({ open, onOpenChange }: { open: boolean, onOpenChange: 
     setImagePreview(null);
   }
 
-  const handleSubmit = async (formData: FormData) => {
-    const imageFile = formData.get('image') as File;
-    if (!imageFile || imageFile.size === 0) {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!imagePreview) {
         toast({ variant: "destructive", title: "Missing Image", description: "Please upload an image for the sample." });
         return;
     }
 
+    const formData = new FormData(e.currentTarget);
+    formData.set('image', imagePreview); // Set the base64 string
+    
     startTransition(async () => {
         const result = await addRockSample(formData);
         if (result.success) {
@@ -164,10 +176,10 @@ function AddSampleDialog({ open, onOpenChange }: { open: boolean, onOpenChange: 
         <DialogHeader>
           <DialogTitle>Add a New Rock Sample</DialogTitle>
         </DialogHeader>
-        <form ref={formRef} action={handleSubmit} className="space-y-4">
+        <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="rock-image">Rock Image</Label>
-            <Input id="rock-image" name="image" type="file" accept="image/*" ref={fileInputRef} onChange={handleFileChange} className="hidden" required />
+            <Label htmlFor="rock-image">Rock Image (Max 1MB)</Label>
+            <Input id="rock-image" name="file" type="file" accept="image/*" ref={fileInputRef} onChange={handleFileChange} className="hidden" required />
             <label htmlFor="rock-image" className="cursor-pointer">
                 <div className="w-full aspect-video border-2 border-dashed rounded-lg flex items-center justify-center bg-secondary/50 text-muted-foreground">
                     {imagePreview ? (
@@ -176,6 +188,7 @@ function AddSampleDialog({ open, onOpenChange }: { open: boolean, onOpenChange: 
                         <div className="text-center">
                             <UploadCloud className="mx-auto h-10 w-10" />
                             <p>Click to upload an image</p>
+                            <p className="text-xs">(Max 1MB)</p>
                         </div>
                     )}
                 </div>

@@ -204,6 +204,8 @@ export default function PostPage() {
         return <div className="text-center text-muted-foreground mt-8">Post not found.</div>;
     }
 
+    const isImageDataUrl = post.fileUrl?.startsWith('data:image/');
+
     return (
         <div className="container mx-auto py-8">
             <Card>
@@ -229,7 +231,7 @@ export default function PostPage() {
 
                     {post.fileUrl && (
                         <div className="mt-4">
-                            {post.fileType?.startsWith('image/') ? (
+                            {isImageDataUrl ? (
                                 <Image src={post.fileUrl} alt="Post attachment" width={600} height={400} className="rounded-lg object-cover" />
                             ) : post.fileType?.startsWith('video/') ? (
                                 <video src={post.fileUrl} controls className="w-full rounded-lg"></video>

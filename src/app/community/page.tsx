@@ -7,7 +7,7 @@ import Image from "next/image"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { MessageSquare, PlusCircle, ThumbsUp, Loader2, User, DatabaseZap, UploadCloud } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 import { createCommunityPost, seedCommunityPosts } from "@/app/actions"
@@ -233,40 +233,48 @@ function CreatePostDialog() {
     const [user] = useAuthState(auth);
     const formRef = useRef<HTMLFormElement>(null);
     const [filePreview, setFilePreview] = useState<string | null>(null);
-    const [fileName, setFileName] = useState<string | null>(null);
+    const [file, setFile] = useState<File | null>(null);
     
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (filePreview) {
-          URL.revokeObjectURL(filePreview);
-      }
-      if (file) {
-        if (file.type.startsWith('image/')) {
-            setFilePreview(URL.createObjectURL(file));
-            setFileName(null);
-        } else {
-            setFilePreview(null);
-            setFileName(file.name);
+      const selectedFile = e.target.files?.[0];
+      if (selectedFile) {
+        if (selectedFile.size > 1024 * 1024) { // 1MB limit
+            toast({
+                variant: "destructive",
+                title: "Image too large",
+                description: "Please select an image smaller than 1MB."
+            });
+            return;
         }
+        setFile(selectedFile);
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setFilePreview(reader.result as string);
+        };
+        reader.readAsDataURL(selectedFile);
       } else {
+        setFile(null);
         setFilePreview(null);
-        setFileName(null);
       }
     };
 
     const cleanup = () => {
         formRef.current?.reset();
-        if (filePreview) {
-            URL.revokeObjectURL(filePreview);
-        }
+        setFile(null);
         setFilePreview(null);
-        setFileName(null);
     }
     
-    const handleSubmit = async (formData: FormData) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
         if (!user) {
             toast({ variant: "destructive", title: "Not Logged In", description: "You must be logged in to create a post." });
             return;
+        }
+
+        const formData = new FormData(e.currentTarget);
+        if (filePreview && file) {
+            formData.append('fileUrl', filePreview);
+            formData.append('fileType', file.type);
         }
 
         startTransition(async () => {
@@ -298,7 +306,7 @@ function CreatePostDialog() {
                 </DialogHeader>
                 <form 
                     ref={formRef}
-                    action={handleSubmit}
+                    onSubmit={handleSubmit}
                     className="space-y-4"
                 >
                     <div className="space-y-2">
@@ -323,21 +331,17 @@ function CreatePostDialog() {
                         <Textarea id="content" name="content" placeholder="Write your post here..." rows={6} required />
                     </div>
                     <div className="space-y-2">
-                        <Label htmlFor="file-upload">Attach File (Image/Video)</Label>
-                         <Input id="file-upload" name="file" type="file" className="hidden" onChange={handleFileChange} />
+                        <Label htmlFor="file-upload">Attach Image (Max 1MB)</Label>
+                         <Input id="file-upload" name="file" type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
                          <label htmlFor="file-upload" className="cursor-pointer">
                             <div className="w-full aspect-video border-2 border-dashed rounded-lg flex items-center justify-center bg-secondary/50 text-muted-foreground relative">
                                 {filePreview ? (
                                     <Image src={filePreview} alt="File preview" fill className="object-contain rounded-md" />
-                                ) : fileName ? (
-                                        <div className="text-center">
-                                            <p>File selected:</p>
-                                            <p className="font-semibold">{fileName}</p>
-                                        </div>
                                 ) : (
                                     <div className="text-center">
                                         <UploadCloud className="mx-auto h-10 w-10" />
-                                        <p>Click to upload an image or video</p>
+                                        <p>Click to upload an image</p>
+                                        <p className="text-xs">(Max 1MB)</p>
                                     </div>
                                 )}
                             </div>
@@ -355,3 +359,5 @@ function CreatePostDialog() {
         </Dialog>
     );
 }
+
+    

@@ -1,8 +1,7 @@
 'use client';
 
-import { db, auth, storage } from '@/lib/firebase';
-import { doc, updateDoc, arrayRemove, arrayUnion, increment, collection, addDoc, serverTimestamp, getDoc, runTransaction } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { db, auth } from '@/lib/firebase';
+import { doc, updateDoc, arrayRemove, arrayUnion, increment, collection, addDoc, serverTimestamp, getDoc } from 'firebase/firestore';
 
 export async function toggleUpvote(postId: string, userId: string) {
     if (!userId) {
@@ -42,32 +41,15 @@ export async function createCommunityPost(formData: FormData) {
         return { success: false, message: "You must be logged in to create a post." };
     }
 
-    const post = {
-        title: formData.get('title') as string,
-        category: formData.get('category') as string,
-        content: formData.get('content') as string,
-        file: formData.get('file') as File,
-    };
+    const title = formData.get('title') as string;
+    const category = formData.get('category') as string;
+    const content = formData.get('content') as string;
+    const fileUrl = formData.get('fileUrl') as string | null;
+    const fileType = formData.get('fileType') as string | null;
 
-    if (!post.title || !post.category || !post.content) {
+    if (!title || !category || !content) {
         return { success: false, message: "Please fill out all fields." };
     }
-
-    let fileUrl = '';
-    let fileType = '';
-
-    if (post.file && post.file.size > 0) {
-        const storageRef = ref(storage, `community-files/${user.uid}/${Date.now()}_${post.file.name}`);
-        try {
-            const snapshot = await uploadBytes(storageRef, post.file);
-            fileUrl = await getDownloadURL(snapshot.ref);
-            fileType = post.file.type;
-        } catch (error: any) {
-            console.error("Error uploading file:", error);
-            return { success: false, message: `Failed to upload file: ${error.message}` };
-        }
-    }
-
 
     try {
         await addDoc(collection(db, 'community-posts'), {
@@ -76,11 +58,11 @@ export async function createCommunityPost(formData: FormData) {
                 name: user.displayName || 'Anonymous User',
                 avatar: user.photoURL || `https://placehold.co/100x100.png?text=${user.displayName?.charAt(0) || 'A'}`,
             },
-            title: post.title,
-            category: post.category,
-            content: post.content,
-            fileUrl,
-            fileType,
+            title,
+            category,
+            content,
+            fileUrl: fileUrl || '',
+            fileType: fileType || '',
             upvotes: 0,
             upvotedBy: [],
             comments: 0,
@@ -89,6 +71,10 @@ export async function createCommunityPost(formData: FormData) {
         return { success: true, message: "Post created successfully!" };
     } catch (error: any) {
         console.error("Error creating post:", error);
+        // Check for Firestore quota/size limit error
+        if (error.code === 'resource-exhausted' || (error.message && error.message.includes('entity too large'))) {
+             return { success: false, message: "Failed to create post: The attached image is too large. Please use an image under 1MB." };
+        }
         return { success: false, message: `Failed to create post: ${error.message}` };
     }
 }
@@ -130,34 +116,27 @@ export async function addRockSample(formData: FormData) {
     const name = formData.get('name') as string;
     const type = formData.get('type') as string;
     const locationFound = formData.get('locationFound') as string;
-    const imageFile = formData.get('image') as File;
+    const imageAsDataUrl = formData.get('image') as string;
 
-    if (!name || !type || !locationFound || !imageFile || imageFile.size === 0) {
+    if (!name || !type || !locationFound || !imageAsDataUrl) {
         return { success: false, message: "Please fill out all fields and provide an image." };
     }
-
-    let imageUrl = '';
-    try {
-        const storageRef = ref(storage, `rock-vault-samples/${user.uid}/${Date.now()}_${imageFile.name}`);
-        const snapshot = await uploadBytes(storageRef, imageFile);
-        imageUrl = await getDownloadURL(snapshot.ref);
-    } catch (error: any) {
-        console.error("Error uploading rock sample image:", error);
-        return { success: false, message: `Failed to upload image: ${error.message}` };
-    }
-
+    
     try {
         await addDoc(collection(db, "rock-vault-samples"), {
             name,
             type,
             locationFound,
-            image: imageUrl,
+            image: imageAsDataUrl,
             userId: user.uid,
             timestamp: serverTimestamp(),
         });
         return { success: true, message: "Rock sample added to your vault!" };
     } catch (error: any) {
         console.error("Error adding rock sample:", error);
+        if (error.code === 'resource-exhausted' || (error.message && error.message.includes('entity too large'))) {
+             return { success: false, message: "Failed to add sample: The attached image is too large. Please use an image under 1MB." };
+        }
         return { success: false, message: `Failed to add sample: ${error.message}` };
     }
 }
@@ -190,7 +169,7 @@ export async function seedCommunityPosts() {
 
     try {
         for (const post of posts) {
-            const postWithServerTimestamp = { ...post, timestamp: serverTimestamp() };
+            const postWithServerTimestamp = { ...post, timestamp: serverTimestamp(), fileUrl: '', fileType: '' };
             await addDoc(collection(db, 'community-posts'), postWithServerTimestamp);
         }
         return { success: true, message: "Sample community posts have been seeded!" };
