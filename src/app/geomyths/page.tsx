@@ -90,7 +90,7 @@ const myths = [
     question: "Myth: Earth's magnetic poles are fixed.",
     answer: "Fact: The magnetic poles are constantly wandering. Furthermore, geological evidence in rocks shows that the Earth's magnetic field has completely flipped its polarity hundreds of times over its history. These magnetic reversals are a normal, albeit slow, geological process.",
   },
-    {
+  {
     id: "myth-17",
     question: "Myth: Seafloor spreading is pushing the continents apart at a rapid rate.",
     answer: "Fact: While seafloor spreading is a key mechanism of plate tectonics, it's a very slow process. The average rate is comparable to the speed at which fingernails grow, typically a few centimeters per year. It is not a rapid, dramatic push but a slow, steady geological force.",
@@ -130,7 +130,7 @@ const myths = [
     question: "Myth: Tsunamis are just giant waves, like you see at the beach.",
     answer: "Fact: A tsunami is not a single breaking wave but a series of waves with a very long wavelength, often called a wave train. In the open ocean, it might not even be noticeable. Its destructive power is unleashed as it approaches shallow water, causing a rapid rise in sea level over a large area, more like a fast-moving tide than a wind-driven wave.",
   },
-    {
+  {
     id: "myth-25",
     question: "Myth: Water spirals down drains differently in the Northern and Southern Hemispheres due to the Coriolis effect.",
     answer: "Fact: The Coriolis effect is real and affects large-scale systems like hurricanes, but it's far too weak to influence the direction of water in a sink or toilet. The direction is determined by the shape of the basin and other minor variables, not the Earth's rotation.",
@@ -209,6 +209,46 @@ const myths = [
     id: "myth-40",
     question: "Myth: Geologic time is just a theory, and the Earth is a few thousand years old.",
     answer: "Fact: Multiple, independent lines of scientific evidence confirm the Earth's vast age. Radiometric dating of rocks (like Uranium-Lead dating), analysis of glacial ice cores, tree ring data, and the observable layers in geology all consistently point to an Earth that is approximately 4.5 billion years old.",
+  },
+  {
+    id: "myth-41",
+    question: "Myth: The Earth is mostly hollow or has a large inner sun.",
+    answer: "Fact: This idea, popular in fiction, is completely false. Seismic data from earthquakes passing through the Earth clearly shows a solid inner core and a liquid outer core, with a dense mantle and crust. There are no large voids within the Earth.",
+  },
+  {
+    id: "myth-42",
+    question: "Myth: All gemstones are rare and valuable.",
+    answer: "Fact: Many gemstones, like amethyst and citrine (varieties of quartz), are quite common and affordable. The value of a gemstone depends on the 4 Cs: color, clarity, cut, and carat weight, as well as its rarity.",
+  },
+  {
+    id: "myth-43",
+    question: "Myth: A '100-year flood' only happens once every 100 years.",
+    answer: "Fact: The term '100-year flood' is a statistical designation meaning there is a 1% chance of a flood of that magnitude occurring in any given year. It's entirely possible for two such floods to happen in consecutive years, or even in the same year.",
+  },
+  {
+    id: "myth-44",
+    question: "Myth: Rocks are permanent and never change.",
+    answer: "Fact: The rock cycle describes how rocks are constantly changing form. Igneous rocks can be weathered into sediment to form sedimentary rocks, which can then be subducted and metamorphosed into metamorphic rocks, which could eventually melt and become magma again. It's a slow but continuous process.",
+  },
+  {
+    id: "myth-45",
+    question: "Myth: Volcanoes are only found in hot climates.",
+    answer: "Fact: Volcanoes are found on every continent, including Antarctica. Mount Erebus is a famous active volcano in Antarctica. Volcanism is related to plate tectonics and mantle plumes, not surface climate.",
+  },
+  {
+    id: "myth-46",
+    question: "Myth: The sound of an earthquake is the ground rumbling.",
+    answer: "Fact: Earthquakes themselves don't make sound in the way we typically think of it. The sound people hear is the result of seismic waves causing buildings and other objects on the surface to vibrate and create sound waves in the air.",
+  },
+  {
+    id: "myth-47",
+    question: "Myth: The most dangerous fault is the one that creates the biggest earthquakes.",
+    answer: "Fact: While large magnitude is dangerous, the actual risk depends on many factors, including the proximity of the fault to populated areas, the local geology (which can amplify shaking), and the construction standards of buildings. A smaller earthquake on a fault under a major city can be far more devastating than a giant one in a remote area.",
+  },
+  {
+    id: "myth-48",
+    question: "Myth: Petrified wood is wood that has turned to stone.",
+    answer: "Fact: Petrified wood is a fossil. The process of petrification involves the organic matter of the wood being replaced by minerals over millions of years, while retaining the original cellular structure of the wood. It's a mineral cast of the original wood, not the wood itself.",
   },
 ]
 
