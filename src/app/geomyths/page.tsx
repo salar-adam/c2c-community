@@ -455,6 +455,61 @@ const myths = [
     question: "Myth: Petrified wood is wood that has turned to stone.",
     answer: "Fact: Petrified wood is a fossil. The process of petrification involves the organic matter of the wood being replaced by minerals over millions of years, while retaining the original cellular structure of the wood. It's a mineral cast of the original wood, not the wood itself.",
   },
+  {
+    id: "myth-90",
+    question: "Myth: A dormant volcano is extinct and will never erupt again.",
+    answer: "Fact: A dormant volcano is one that has not erupted in a long time but is expected to erupt again. An extinct volcano is considered unlikely to erupt again. Distinguishing between the two can be difficult, and some 'extinct' volcanoes have surprised geologists by becoming active.",
+  },
+  {
+    id: "myth-91",
+    question: "Myth: Sinkholes are random events that can happen anywhere.",
+    answer: "Fact: Sinkholes primarily occur in specific types of geology known as 'karst terrain'. This is where soluble bedrock, like limestone or gypsum, is dissolved by groundwater, creating underground caverns that can collapse. They are not random and are predictable in these regions.",
+  },
+  {
+    id: "myth-92",
+    question: "Myth: All granite countertops are radioactive and dangerous.",
+    answer: "Fact: While granite does contain naturally occurring radioactive elements like uranium and thorium, the vast majority of granite countertops emit radiation levels that are far too low to be harmful and are often less than the background radiation we are exposed to daily.",
+  },
+  {
+    id: "myth-93",
+    question: "Myth: The age of a river can be determined by how winding it is.",
+    answer: "Fact: A river's meandering pattern is more a function of the slope of the land it flows over and the type of sediment it carries, rather than its age. A river flowing over a flat floodplain will meander more than one flowing down a steep mountain, regardless of how long it has existed.",
+  },
+  {
+    id: "myth-94",
+    question: "Myth: Earth's oxygen comes entirely from trees and rainforests.",
+    answer: "Fact: While rainforests are vital, scientists estimate that 50-80% of the Earth's oxygen is produced by marine organisms, primarily oceanic plankton like diatoms and cyanobacteria. They are the 'lungs of the planet' just as much as forests are.",
+  },
+  {
+    id: "myth-95",
+    question: "Myth: The Earth has always had one moon.",
+    answer: "Fact: While our Moon is dominant now, scientific models suggest Earth may have temporarily captured other, smaller natural satellites (mini-moons) in the past. These would have been small asteroids that orbited for a few months or years before being flung back into space.",
+  },
+  {
+    id: "myth-96",
+    question: "Myth: Seismic waves from an earthquake only travel through the ground.",
+    answer: "Fact: While we feel the ground shaking, the energy from large earthquakes travels throughout the entire planet. Seismic waves pass through the mantle and core, and studying how they change speed and direction allows scientists to map the Earth's interior structure.",
+  },
+  {
+    id: "myth-97",
+    question: "Myth: The continents are no longer moving.",
+    answer: "Fact: The continents are still moving at about the same rate your fingernails grow. Using GPS and other geodetic techniques, scientists can precisely measure this movement. For example, North America and Europe are moving apart by a few centimeters every year.",
+  },
+  {
+    id: "myth-98",
+    question: "Myth: The 'smell of rain' (petrichor) comes from the water itself.",
+    answer: "Fact: Petrichor is the earthy scent produced when rain falls on dry soil. It's a combination of oils secreted by plants during dry periods and a chemical called geosmin, which is produced by soil-dwelling bacteria. Raindrops trap and release these compounds as tiny aerosols.",
+  },
+  {
+    id: "myth-99",
+    question: "Myth: If a geyser stops erupting, it means the volcano is dying.",
+    answer: "Fact: A geyser's plumbing system is very delicate and can be changed by minor earthquakes or mineral deposition. A geyser stopping, or a new one starting, is often a sign of changes in this shallow hydrothermal system, not necessarily an indicator of the state of the deeper magma chamber.",
+  },
+  {
+    id: "myth-100",
+    question: "Myth: Science has all the answers about geology.",
+    answer: "Fact: Geology is a constantly evolving science. New discoveries are made all the time, from finding new fossil species to understanding the complex dynamics of plate tectonics and climate change. There are still many mysteries about our planet, which is what makes studying it so exciting.",
+  },
 ]
 
 export default function GeoMythsPage() {
