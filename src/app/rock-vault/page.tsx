@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, ChangeEvent, FormEvent, useTransition } from "react"
+import { useState, useEffect, ChangeEvent, FormEvent, useTransition, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -106,58 +106,45 @@ export default function RockVaultPage() {
 }
 
 function AddSampleDialog({ open, onOpenChange }: { open: boolean, onOpenChange: (open: boolean) => void }) {
-  const [name, setName] = useState("");
-  const [type, setType] = useState("");
-  const [locationFound, setLocationFound] = useState("");
-  const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isSubmitting, startTransition] = useTransition();
   const { toast } = useToast();
+  const formRef = useRef<HTMLFormElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setImageFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
       };
       reader.readAsDataURL(file);
+    } else {
+        setImagePreview(null);
     }
   };
 
   const resetForm = () => {
-    setName("");
-    setType("");
-    setLocationFound("");
-    setImageFile(null);
+    formRef.current?.reset();
     setImagePreview(null);
   }
 
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    if (!name || !type || !locationFound || !imageFile) {
-        toast({ variant: "destructive", title: "Missing fields", description: "Please fill out all fields and upload an image." });
+  const handleSubmit = async (formData: FormData) => {
+    const imageFile = formData.get('image') as File;
+    if (!imageFile || imageFile.size === 0) {
+        toast({ variant: "destructive", title: "Missing Image", description: "Please upload an image for the sample." });
         return;
     }
 
-    startTransition(() => {
-        const reader = new FileReader();
-        reader.readAsDataURL(imageFile);
-        reader.onload = async () => {
-            const image = reader.result as string;
-            const result = await addRockSample({ name, type, locationFound, image });
-            
-            if (result.success) {
-                toast({ title: "Success", description: result.message });
-                resetForm();
-                onOpenChange(false);
-            } else {
-                toast({ variant: "destructive", title: "Error", description: result.message });
-            }
-        };
-        reader.onerror = () => {
-            toast({ variant: "destructive", title: "Error", description: "Failed to process image file."});
+    startTransition(async () => {
+        const result = await addRockSample(formData);
+        if (result.success) {
+            toast({ title: "Success", description: result.message });
+            resetForm();
+            onOpenChange(false);
+        } else {
+            toast({ variant: "destructive", title: "Error", description: result.message });
         }
     });
   };
@@ -177,10 +164,10 @@ function AddSampleDialog({ open, onOpenChange }: { open: boolean, onOpenChange: 
         <DialogHeader>
           <DialogTitle>Add a New Rock Sample</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form ref={formRef} action={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="rock-image">Rock Image</Label>
-            <Input id="rock-image" type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
+            <Input id="rock-image" name="image" type="file" accept="image/*" ref={fileInputRef} onChange={handleFileChange} className="hidden" required />
             <label htmlFor="rock-image" className="cursor-pointer">
                 <div className="w-full aspect-video border-2 border-dashed rounded-lg flex items-center justify-center bg-secondary/50 text-muted-foreground">
                     {imagePreview ? (
@@ -196,11 +183,11 @@ function AddSampleDialog({ open, onOpenChange }: { open: boolean, onOpenChange: 
           </div>
           <div className="space-y-2">
             <Label htmlFor="rock-name">Rock Name</Label>
-            <Input id="rock-name" value={name} onChange={e => setName(e.target.value)} placeholder="e.g., Obsidian" required />
+            <Input id="rock-name" name="name" placeholder="e.g., Obsidian" required />
           </div>
           <div className="space-y-2">
             <Label htmlFor="rock-type">Rock Type</Label>
-            <Select onValueChange={setType} value={type} required>
+            <Select name="type" required>
               <SelectTrigger id="rock-type">
                 <SelectValue placeholder="Select a rock type" />
               </SelectTrigger>
@@ -213,7 +200,7 @@ function AddSampleDialog({ open, onOpenChange }: { open: boolean, onOpenChange: 
           </div>
           <div className="space-y-2">
             <Label htmlFor="location">Location Found</Label>
-            <Input id="location" value={locationFound} onChange={e => setLocationFound(e.target.value)} placeholder="e.g., Cascade Range, USA" required />
+            <Input id="location" name="locationFound" placeholder="e.g., Cascade Range, USA" required />
           </div>
           <Button type="submit" className="w-full" disabled={isSubmitting}>
             {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <PlusCircle className="mr-2 h-4 w-4" />}

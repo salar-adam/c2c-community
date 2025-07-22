@@ -121,15 +121,37 @@ export async function addExpertQuestion(formData: FormData) {
 }
 
 
-export async function addRockSample(data: { name: string; type: string; locationFound: string; image: string; }) {
+export async function addRockSample(formData: FormData) {
     const user = auth.currentUser;
     if (!user) {
         return { success: false, message: "You must be logged in to add a sample." };
     }
+    
+    const name = formData.get('name') as string;
+    const type = formData.get('type') as string;
+    const locationFound = formData.get('locationFound') as string;
+    const imageFile = formData.get('image') as File;
+
+    if (!name || !type || !locationFound || !imageFile || imageFile.size === 0) {
+        return { success: false, message: "Please fill out all fields and provide an image." };
+    }
+
+    let imageUrl = '';
+    try {
+        const storageRef = ref(storage, `rock-vault-samples/${user.uid}/${Date.now()}_${imageFile.name}`);
+        const snapshot = await uploadBytes(storageRef, imageFile);
+        imageUrl = await getDownloadURL(snapshot.ref);
+    } catch (error: any) {
+        console.error("Error uploading rock sample image:", error);
+        return { success: false, message: `Failed to upload image: ${error.message}` };
+    }
 
     try {
         await addDoc(collection(db, "rock-vault-samples"), {
-            ...data,
+            name,
+            type,
+            locationFound,
+            image: imageUrl,
             userId: user.uid,
             timestamp: serverTimestamp(),
         });
