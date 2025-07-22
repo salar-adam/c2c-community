@@ -370,6 +370,46 @@ const myths = [
     question: "Myth: Mountain ranges are formed by the Earth wrinkling as it cooled.",
     answer: "Fact: This was an old theory that has been disproven. Major mountain ranges are primarily formed by plate tectonics. For example, the Himalayas are being pushed up by the collision of the Indian and Eurasian plates, and the Andes are formed by the subduction of the Nazca Plate beneath the South American Plate.",
   },
+  {
+    id: "myth-73",
+    question: "Myth: The biggest risk from a volcanic eruption is the lava flow.",
+    answer: "Fact: While lava flows are destructive, they are usually slow-moving and localized. The most dangerous and widespread hazards are often pyroclastic flows (fast-moving clouds of hot gas and ash) and lahars (volcanic mudflows), which can travel great distances at high speeds. Volcanic ash can also disrupt air travel and affect respiratory health over huge areas."
+  },
+  {
+    id: "myth-74",
+    question: "Myth: All granite is the same.",
+    answer: "Fact: Granite is a broad term for a type of intrusive igneous rock. However, its mineral composition, crystal size (texture), and color can vary dramatically depending on the specific chemistry of the magma it cooled from and its cooling history. This results in hundreds of named varieties of granite used in construction and decoration."
+  },
+  {
+    id: "myth-75",
+    question: "Myth: Erosion is always a slow, gradual process.",
+    answer: "Fact: While much erosion is gradual (e.g., a river slowly deepening its valley), it can also happen catastrophically. Flash floods, landslides, coastal storm surges, and glacial outburst floods can remove enormous amounts of rock and soil in a matter of minutes or hours, dramatically reshaping the landscape."
+  },
+  {
+    id: "myth-76",
+    question: "Myth: The fossil record is complete and shows a perfect progression of life.",
+    answer: "Fact: The fossil record is incredibly valuable, but it's also very incomplete. Fossilization is a rare event that requires specific conditions. Many organisms (especially soft-bodied ones) never fossilize. The record we have is a biased snapshot with many 'missing pages', though it still provides overwhelming evidence for evolution."
+  },
+  {
+    id: "myth-77",
+    question: "Myth: A stalactite grows a few inches every year.",
+    answer: "Fact: The growth rate of cave formations (speleothems) is highly variable and depends on factors like water drip rate, mineral content, and cave atmosphere. While some can grow relatively quickly, many grow at an incredibly slow pace, sometimes less than a centimeter per thousand years. It is never permissible to touch them, as oils from skin can halt their growth."
+  },
+  {
+    id: "myth-78",
+    question: "Myth: Geological maps are just maps with different colors.",
+    answer: "Fact: Geological maps are highly complex scientific documents. The colors represent different rock units of specific ages and types. The lines and symbols show faults, folds, and the orientation of rock layers. They are used by geologists to understand the three-dimensional structure of the Earth's crust and to find resources or assess hazards."
+  },
+  {
+    id: "myth-79",
+    question: "Myth: The Richter scale is still the primary measure for earthquake size.",
+    answer: "Fact: The Richter scale, developed in the 1930s, was an early method for measuring earthquake magnitude. It has been largely superseded by the Moment Magnitude Scale (MMS) since the 1970s. The MMS is more accurate for large earthquakes because it is directly related to the total energy released by the earthquake."
+  },
+  {
+    id: "myth-80",
+    question: "Myth: You can see the Great Wall of China from the Moon.",
+    answer: "Fact: This is a long-standing myth. The Great Wall is long but very narrow, making it impossible to see from the Moon, let alone from low Earth orbit, without aid. Astronauts have confirmed you cannot see it with the naked eye from space; it's no more visible than a single human hair from two miles away."
+  },
 ]
 
 export default function GeoMythsPage() {
